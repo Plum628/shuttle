@@ -1,0 +1,52 @@
+{
+  "icon": "https://cdn.jsdelivr.net/gh/Plum628/shuttle@latest/assets/icon.webp",
+  "logo": "https://cdn.jsdelivr.net/gh/Plum628/shuttle@latest/assets/logo.webp",
+  "background": "https://cdn.jsdelivr.net/gh/Plum628/shuttle@latest/assets/background.webp",
+  "font": "https://cdn.jsdelivr.net/gh/Plum628/shuttle@latest/assets/PvZ2Regular.woff2",
+  "icon_sprite": "https://cdn.jsdelivr.net/gh/Plum628/shuttle@latest/assets/icons-sprite.svg",
+  "trailers": {
+    "zh": [
+      "https://www.bilibili.com/video/BV1i7G2z6EqR",
+      "https://www.bilibili.com/video/BV1J2jAziEa4"
+    ],
+    "en": [
+      "https://www.youtube.com/watch?v=smNUv2AND_4",
+      "https://www.youtube.com/watch?v=QR_vt_KEm28"
+    ]
+  },
+  "auto-play-trailers": false,
+  "auto-mute-trailers": true,
+  "social": {
+    "qq_groups": {
+      "1071436613": "https://qm.qq.com/q/jZynA5QHQI",
+      "623546554": "https://qm.qq.com/q/3uC0w2wW7K",
+      "195802797": "https://qm.qq.com/q/YH9z1tW0g4",
+      "872479956": "https://qm.qq.com/q/SZ9d0rZJmK",
+      "263120940": "https://qm.qq.com/q/dhqW1Dzenu"
+    },
+    "qq_channel": "https://pd.qq.com/s/8k0d7wx86",
+    "discord": "https://discord.com/servers/721512694066315284"
+  },
+  "developers": {
+    "bilibili": [
+      "https://space.bilibili.com/3493082827852000",
+      "https://space.bilibili.com/351004099",
+      "https://space.bilibili.com/183409126"
+    ],
+    "youtube": [
+      "https://www.youtube.com/channel/UCffFVXpWcI4YTEoOE0f-mjg",
+      "https://www.youtube.com/channel/UCCflg30oeDBdCShKtIqajEg"
+    ]
+  },
+  "downloads": {
+    "cn": [
+      "https://pan.quark.cn/s/73ba8ebf6cc6",
+      "https://pan.baidu.com/s/1HZIwZcsRWfiY7HDcU15AJg?pwd=stxb"
+    ],
+    "en": [
+      "https://drive.google.com/drive/folders/1tGKVwDTfv-IfwA7w1cFE9hWWrHLSFx4n",
+      "https://mega.nz/folder/X4cAWa5Z#g-AvUMkMr4jJEMnz570Lvw",
+      "https://www.mediafire.com/folder/yhpdggc1phhed/SHUTTLE_Download_(V.25.6.1)"
+    ]
+  }
+}

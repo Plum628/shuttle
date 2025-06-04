@@ -1,0 +1,255 @@
+<!DOCTYPE html>
+<html lang="auto">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <link rel="icon" href="https://cdn.jsdelivr.net/gh/Plum628/shuttle@latest/assets/favicon.ico" type="image/x-icon" />
+    <title>PvZ2: SHUTTLE</title>
+
+    <style>
+      /* ===== 全局样式 ===== */
+      body {
+        margin: 0;
+        padding: 0;
+        font-family: 'PvZ2Regular';
+        color: #e6e6e6;
+        background: linear-gradient(rgba(0, 0, 0, 0.1), rgba(0, 0, 0, 0.1)),
+          var(--bg-image) no-repeat center/cover fixed;
+        min-height: 100vh;
+      }
+      body::before {
+        content: '';
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background: inherit;
+        filter: blur(5px) brightness(0.6);
+        z-index: -1;
+      }
+
+      /* ===== 网格布局系统 ===== */
+      .overlay {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+        gap: 28px;
+        max-width: 1200px;
+        margin: auto;
+        padding: 20px;
+      }
+
+      /* ===== 头部容器 ===== */
+      .header-container {
+        grid-column: 1 / -1;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 25px;
+        margin: 30px 0;
+        flex-wrap: wrap;
+      }
+      .header-container::before,
+      .header-container::after {
+        content: '';
+        flex: 1;
+        min-width: 20px;
+      }
+      .logo {
+        width: 110px;
+        height: 110px;
+        border-radius: 50%;
+        border: 3px solid rgba(255, 255, 255, 0.2);
+        box-shadow: 0 0 20px rgba(30, 144, 255, 0.25);
+        transition: transform 0.3s ease;
+      }
+      .logo:hover {
+        transform: rotate(8deg) scale(1.08);
+      }
+      h1 {
+        font-size: 3.2rem;
+        margin: 0;
+        color: #7dc8ff;
+        text-shadow: 0 3px 15px rgba(33, 150, 243, 0.5);
+        white-space: nowrap;
+        position: relative;
+        top: 2px;
+        letter-spacing: 1px;
+      }
+
+      /* ===== 卡片通用样式 ===== */
+      .card {
+        font-size: 1.3rem;
+        background: rgba(15, 25, 40, 0.95);
+        border-radius: 16px;
+        padding: 28px;
+        box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+        backdrop-filter: blur(12px);
+        border: 1px solid rgba(255, 255, 255, 0.15);
+        transition: transform 0.3s ease;
+        min-height: 180px;
+        display: flex;
+        flex-direction: column;
+      }
+      .card:hover {
+        transform: translateY(-3px);
+        box-shadow: 0 12px 40px rgba(30, 144, 255, 0.25);
+      }
+
+      /* ===== 下载卡片 ===== */
+      #download-card {
+        grid-column: 1 / -1;
+        width: calc(100% - 70px);
+        margin: 20px auto;
+        padding: 35px;
+      }
+
+      /* ===== 视频容器 ===== */
+      .video-container {
+        position: relative;
+        width: 100%;
+        padding-bottom: 56.25%;
+        margin: 25px 0;
+        border-radius: 16px;
+        overflow: hidden;
+      }
+      .video-container iframe {
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        border: none;
+        object-fit: cover;
+        box-shadow: 0 8px 25px rgba(0, 0, 0, 0.4);
+      }
+
+      /* ===== 版本徽章 ===== */
+      .version-badge {
+        font-size: 1.8rem;
+        font-weight: 600;
+        color: #00b4ff;
+        background: rgba(0, 180, 255, 0.15);
+        padding: 8px 20px;
+        border-radius: 50px;
+        margin: 0 auto 30px;
+        display: inline-block;
+      }
+
+      /* ===== 自适应按钮 ===== */
+      .adaptive-btn {
+        padding: 12px 20px;
+        border-radius: 8px;
+        background: linear-gradient(135deg, #2196f3 0%, #1976d2 100%);
+        border: 2px solid rgba(255, 255, 255, 0.2);
+        box-shadow: 0 4px 12px rgba(33, 150, 243, 0.25);
+        color: white;
+        text-decoration: none;
+        text-align: center;
+        transition: all 0.2s ease;
+        display: inline-flex;
+        justify-content: center;
+        align-items: center;
+        min-width: 120px;
+        width: min(100%, 300px);
+        box-sizing: border-box;
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        font-size: clamp(14px, 1.5vw, 18px);
+      }
+      .adaptive-btn:hover {
+        background: linear-gradient(135deg, #1976d2 0%, #1565c0 100%);
+        transform: scale(1.03);
+        box-shadow: 0 6px 16px rgba(33, 150, 243, 0.35);
+      }
+
+      /* ===== 按钮容器 ===== */
+      .btn-container {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(min(100%, 200px), 1fr));
+        gap: 15px;
+        width: 100%;
+        justify-items: center;
+        padding: 0 15px;
+        margin: 5px;
+        box-sizing: border-box;
+      }
+
+      /* ===== 语言切换 ===== */
+      .lang-switch {
+        position: fixed;
+        top: 20px;
+        right: 20px;
+        z-index: 100;
+      }
+      .lang-select {
+        padding: 8px 12px;
+        border-radius: 6px;
+        background-color: rgba(0, 0, 0, 0.6);
+        border: 1px solid rgba(255, 255, 255, 0.3);
+        color: #fff;
+        cursor: pointer;
+      }
+
+      /* ===== 按钮前的图标样式 ===== */
+      .icon {
+        width: 1.3em;
+        height: 1.3em;
+        margin-right: 6px;
+        vertical-align: middle;
+        fill: currentColor;
+      }
+    </style>
+  </head>
+
+  <body>
+    <div class="lang-switch">
+      <select class="lang-select" id="lang-select">
+        <!-- 语言选项与其对应名称 -->
+        <option value="zh-CN">简体中文</option>
+        <option value="en-US">English</option>
+      </select>
+    </div>
+
+    <div class="overlay">
+      <!-- 头部 -->
+      <div class="header-container">
+        <img class="logo" id="game-icon" src="" alt="Game Icon" />
+        <img
+          id="game-title-logo"
+          src=""
+          alt="Title Logo"
+          style="height: 15rem; object-fit: contain"
+        />
+      </div>
+
+      <!-- 下载卡片 -->
+      <div class="card" id="download-card">
+        <h2 id="title-download"></h2>
+        <div class="version-badge" id="version"></div>
+        <div class="btn-container" id="downloads"></div>
+      </div>
+
+      <!-- 预告片卡片 -->
+      <div class="card">
+        <h2 id="title-trailer"></h2>
+        <div id="trailer-container"></div>
+      </div>
+
+      <!-- 作者 & 频道卡片 -->
+      <div class="card">
+        <h2 id="title-developers"></h2>
+        <div class="btn-container" id="developers"></div>
+      </div>
+
+      <!-- 社区卡片 -->
+      <div class="card">
+        <h2 id="title-community"></h2>
+        <div class="btn-container" id="groups"></div>
+      </div>
+    </div>
+
+    <script type="module" src="https://cdn.jsdelivr.net/gh/Plum628/shuttle@latest/js/main.js"></script>
+  </body>
+</html>

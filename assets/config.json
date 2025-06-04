@@ -1,9 +1,14 @@
 {
-  "icon": "https://cdn.jsdelivr.net/gh/Plum628/shuttle@latest/assets/icon.webp",
-  "logo": "https://cdn.jsdelivr.net/gh/Plum628/shuttle@latest/assets/logo.webp",
-  "background": "https://cdn.jsdelivr.net/gh/Plum628/shuttle@latest/assets/background.webp",
-  "font": "https://cdn.jsdelivr.net/gh/Plum628/shuttle@latest/assets/PvZ2Regular.woff2",
-  "icon_sprite": "https://cdn.jsdelivr.net/gh/Plum628/shuttle@latest/assets/icons-sprite.svg",
+  "background": "/assets/background.webp",
+  "favicon": "/assets/favicon.ico",
+  "font": "/assets/PvZ2Regular.woff2",
+  "icon": "/assets/icon.webp",
+  "logo": "/assets/logo.webp",
+  "textsJson": "/assets/texts.json",
+  "iconsJs": "/js/icons.js",
+  "mainJs": "/js/main.js",
+  "useCdn": false,
+  "cdnBase": "https://cdn.jsdelivr.net/gh/Plum628/shuttle@latest/",
   "trailers": {
     "zh": [
       "https://www.bilibili.com/video/BV1i7G2z6EqR",

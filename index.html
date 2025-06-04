@@ -3,9 +3,7 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <link rel="icon" href="assets/favicon.ico" type="image/x-icon" />
     <title>PvZ2: SHUTTLE</title>
-
     <style>
       /* ===== 全局样式 ===== */
       body {
@@ -250,7 +248,25 @@
         <div class="btn-container" id="groups"></div>
       </div>
     </div>
+<script type="module">
+      import config from '/assets/config.json';
 
-    <script type="module" src="js/main.js"></script>
+      function resolvePath(p) {
+        if (!p) return '';
+        if (config.useCdn) {
+          return config.cdnBase + p.replace(/^\//, '');
+        } else {
+          return p;
+        }
+      }
+
+      const mainJsPath    = resolvePath(config.mainJs);
+      const textsJsonPath = resolvePath(config.textsJson);
+      const iconsJsPath   = resolvePath(config.iconsJs);
+
+      import(mainJsPath).then((module) => {
+        module.init(config, textsJsonPath, iconsJsPath);
+      });
+    </script>
   </body>
 </html>

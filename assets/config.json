@@ -19,8 +19,8 @@
       "https://www.youtube.com/watch?v=QR_vt_KEm28"
     ]
   },
-  "auto-play-trailers": false,
-  "auto-mute-trailers": true,
+  "autoPlayTrailers": false,
+  "autoMuteTrailers": true,
   "social": {
     "qq_groups": {
       "1071436613": "https://qm.qq.com/q/jZynA5QHQI",

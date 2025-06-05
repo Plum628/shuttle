@@ -48,8 +48,8 @@ export async function init(config, textsJsonPath, iconsJsPath) {
     // 渲染预告片
     const trailerContainer = document.getElementById('trailer-container');
     trailerContainer.innerHTML = '';
-    const autoPlay = config['auto-play-trailers'] ? '1' : '0';
-    const autoMute = config['auto-mute-trailers'] ? '1' : '0';
+    const autoPlay = config['autoPlayTrailers'] ? '1' : '0';
+    const autoMute = config['autoMuteTrailers'] ? '1' : '0';
 
     config.trailers[shortLang].forEach((link) => {
       const wrap = document.createElement('div');

@@ -1,13 +1,13 @@
 {
-  "background": "/assets/background.webp",
-  "favicon": "/assets/favicon.ico",
-  "font": "/assets/PvZ2Regular.woff2",
-  "icon": "/assets/icon.webp",
-  "logo": "/assets/logo.webp",
-  "textsJson": "/assets/texts.json",
-  "iconsJs": "/js/icons.js",
-  "mainJs": "/js/main.js",
-  "useCdn": true,
+  "background": "assets/background.webp",
+  "favicon": "assets/favicon.ico",
+  "font": "assets/PvZ2Regular.woff2",
+  "icon": "assets/icon.webp",
+  "logo": "assets/logo.webp",
+  "textsJson": "assets/texts.json",
+  "iconsJs": "js/icons.js",
+  "mainJs": "js/main.js",
+  "useCdn": false,
   "cdnBase": "https://cdn.jsdelivr.net/gh/Plum628/shuttle@latest/",
   "trailers": {
     "zh": [

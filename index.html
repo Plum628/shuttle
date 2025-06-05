@@ -248,8 +248,10 @@
         <div class="btn-container" id="groups"></div>
       </div>
     </div>
-<script type="module">
-      import config from './assets/config.json';
+  <script type="module">
+    async function main() {
+      const res = await fetch('./assets/config.json');
+      const config = await res.json();
 
       function resolvePath(p) {
         if (!p) return '';
@@ -264,9 +266,11 @@
       const textsJsonPath = resolvePath(config.textsJson);
       const iconsJsPath   = resolvePath(config.iconsJs);
 
-      import(mainJsPath).then((module) => {
-        module.init(config, textsJsonPath, iconsJsPath);
-      });
+      const module = await import(mainJsPath);
+      module.init(config, textsJsonPath, iconsJsPath);
+    }
+
+    main();
     </script>
   </body>
 </html>

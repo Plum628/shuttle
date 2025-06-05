@@ -248,29 +248,37 @@
         <div class="btn-container" id="groups"></div>
       </div>
     </div>
-  <script type="module">
-    async function main() {
-      const res = await fetch('./assets/config.json');
-      const config = await res.json();
+    <script type="module">
+      async function main() {
+        const res = await fetch(new URL('assets/config.json', import.meta.url));
+        const config = await res.json();
 
-      function resolvePath(p) {
-        if (!p) return '';
-        if (config.useCdn) {
-          return config.cdnBase + p.replace(/^\//, '');
-        } else {
-          return p;
+        function resolvePath(p) {
+          if (!p) return '';
+          if (config.useCdn) {
+            return new URL(p.replace(/^\/+/, ''), config.cdnBase).toString();
+          } else {
+            return new URL(p.replace(/^\/+/, ''), import.meta.url).toString();
+          }
         }
+
+        if (config.favicon) {
+          const link = document.createElement('link');
+          link.rel = 'icon';
+          link.href = resolvePath(config.favicon);
+          link.type = 'image/x-icon';
+          document.head.appendChild(link);
+        }
+
+        const mainJsPath = resolvePath(config.mainJs);
+        const textsJsonPath = resolvePath(config.textsJson);
+        const iconsJsPath = resolvePath(config.iconsJs);
+
+        const module = await import(mainJsPath);
+        module.init(config, textsJsonPath, iconsJsPath);
       }
 
-      const mainJsPath    = resolvePath(config.mainJs);
-      const textsJsonPath = resolvePath(config.textsJson);
-      const iconsJsPath   = resolvePath(config.iconsJs);
-
-      const module = await import(mainJsPath);
-      module.init(config, textsJsonPath, iconsJsPath);
-    }
-
-    main();
+      main().catch(console.error);
     </script>
   </body>
 </html>

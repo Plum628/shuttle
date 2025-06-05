@@ -7,7 +7,7 @@
   "textsJson": "/assets/texts.json",
   "iconsJs": "/js/icons.js",
   "mainJs": "/js/main.js",
-  "useCdn": false,
+  "useCdn": true,
   "cdnBase": "https://cdn.jsdelivr.net/gh/Plum628/shuttle@latest/",
   "trailers": {
     "zh": [

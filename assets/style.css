@@ -1,0 +1,498 @@
+/* ===== 全局样式 ===== */
+body {
+  margin: 0;
+  padding: 0;
+  font-family: 'PvZ2Regular';
+  color: #e6e6e6;
+  background: linear-gradient(rgba(0, 0, 0, 0.1), rgba(0, 0, 0, 0.1)),
+    var(--bg-image) no-repeat center/cover fixed;
+  min-height: 100vh;
+  /* 为顶部栏留出空间 */
+  padding-top: 60px; /* 根据navbar的高度调整 */
+}
+body::before {
+  content: '';
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: inherit;
+  filter: blur(5px) brightness(0.6);
+  z-index: -1;
+}
+
+/* ===== 顶部导航栏样式 ===== */
+.navbar {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  /* 使背景透明与背景融合 */
+  background-color: rgba(15, 25, 40, 0.7);
+  padding: 10px 20px;
+  display: flex;
+  justify-content: space-between; /* 使项目两端对齐 */
+  align-items: center;
+  /* 移除顶部栏的阴影 */
+  /* box-shadow: 0 2px 10px rgba(0, 0, 0, 0.5); */
+  z-index: 1000; /* 确保顶部栏在最上层 */
+  box-sizing: border-box; /* 包含padding在内的宽度计算 */
+  /* 添加下划线样式 */
+  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.navbar-left {
+  display: flex;
+  align-items: center;
+  gap: 40px; /* 按钮之间的间距 */
+  flex-grow: 1; /* 让左侧占据更多空间，以便按钮居中 */
+  justify-content: center; /* 使左侧按钮居中 */
+}
+
+.navbar-right {
+  display: flex;
+  align-items: center;
+}
+
+.navbar-btn {
+  padding: 8px 0px; /* 调整padding以适应下划线 */
+  border-radius: 0; /* 移除圆角 */
+  /* 移除背景和边框 */
+  background: none;
+  border: none;
+  color: white; /* 默认字体颜色为白色 */
+  text-decoration: none;
+  font-size: 1.1rem;
+  transition: color 0.3s ease, border-bottom 0.3s ease;
+  position: relative; /* 用于下划线动画 */
+}
+
+/* 非当前页面的悬停效果 */
+.navbar-btn:not(.active):hover {
+  color: #307AF7; /* 悬停时字体颜色变为蓝色 */
+}
+
+/* 当前页面的样式 */
+.navbar-btn.active {
+  color: #307AF7; /* 当前页面的字体颜色 */
+  border-bottom: 2px solid #307AF7; /* 下划线高亮效果 */
+}
+
+/* ===== 网格布局系统 ===== */
+.overlay {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+  gap: 28px;
+  max-width: 1200px;
+  margin: auto;
+  padding: 20px;
+}
+
+/* ===== 头部容器 ===== */
+.header-container {
+  grid-column: 1 / -1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 25px;
+  margin: 30px 0;
+  flex-wrap: wrap;
+}
+.header-container::before,
+.header-container::after {
+  content: '';
+  flex: 1;
+  min-width: 20px;
+}
+.logo {
+  width: 110px;
+  height: 110px;
+  border-radius: 50%;
+  border: 3px solid rgba(255, 255, 255, 0.2);
+  box-shadow: 0 0 20px rgba(30, 144, 255, 0.25);
+  transition: transform 0.3s ease;
+}
+.logo:hover {
+  transform: rotate(8deg) scale(1.08);
+}
+h1 {
+  font-size: 3.2rem;
+  margin: 0;
+  color: #7dc8ff;
+  text-shadow: 0 3px 15px rgba(33, 150, 243, 0.5);
+  white-space: nowrap;
+  position: relative;
+  top: 2px;
+  letter-spacing: 1px;
+}
+
+/* ===== 卡片通用样式 ===== */
+.card {
+  font-size: 1.3rem;
+  background: rgba(15, 25, 40, 0.95);
+  border-radius: 16px;
+  padding: 28px;
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+  -webkit-backdrop-filter: blur(12px); 
+  backdrop-filter: blur(12px);
+  border: 1px solid rgba(255, 255, 255, 0.15);
+  transition: transform 0.3s ease;
+  min-height: 180px;
+  display: flex;
+  flex-direction: column;
+}
+.card:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 12px 40px rgba(30, 144, 255, 0.25);
+}
+
+/* ===== 下载卡片 ===== */
+#download-card {
+  grid-column: 1 / -1;
+  width: calc(100% - 70px);
+  margin: 20px auto;
+  padding: 35px;
+}
+
+/* ===== 视频容器 ===== */
+.video-container {
+  position: relative;
+  width: 100%;
+  padding-bottom: 56.25%;
+  margin: 25px 0;
+  border-radius: 16px;
+  overflow: hidden;
+}
+.video-container iframe {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  border: none;
+  object-fit: cover;
+  box-shadow: 0 8px 25px rgba(0, 0, 0, 0.4);
+}
+
+/* ===== 版本徽章 ===== */
+.version-badge {
+  font-size: 1.8rem;
+  font-weight: 600;
+  color: #00b4ff;
+  background: rgba(0, 180, 255, 0.15);
+  padding: 8px 20px;
+  border-radius: 50px;
+  margin: 0 auto 30px;
+  display: inline-block;
+}
+
+/* ===== 自适应按钮 ===== */
+.adaptive-btn {
+  padding: 12px 20px;
+  border-radius: 8px;
+  background: linear-gradient(135deg, #2196f3 0%, #1976d2 100%);
+  border: 2px solid rgba(255, 255, 255, 0.2);
+  box-shadow: 0 4px 12px rgba(33, 150, 243, 0.25);
+  color: white;
+  text-decoration: none;
+  text-align: center;
+  transition: all 0.2s ease;
+  display: inline-flex;
+  justify-content: center;
+  align-items: center;
+  min-width: 120px;
+  width: min(100%, 300px);
+  box-sizing: border-box;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  font-size: clamp(14px, 1.5vw, 18px);
+}
+.adaptive-btn:hover {
+  background: linear-gradient(135deg, #1976d2 0%, #1565c0 100%);
+  transform: scale(1.03);
+  box-shadow: 0 6px 16px rgba(33, 150, 243, 0.35);
+}
+
+/* ===== 按钮容器 ===== */
+.btn-container {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, 200px), 1fr));
+  gap: 15px;
+  width: 100%;
+  justify-items: center;
+  padding: 0 15px;
+  margin: 5px;
+  box-sizing: border-box;
+}
+
+/* ===== 语言切换 ===== */
+.lang-select {
+  padding: 8px 12px;
+  border-radius: 6px;
+  background-color: rgba(0, 0, 0, 0.6);
+  border: 1px solid rgba(255, 255, 255, 0.3);
+  color: #fff;
+  cursor: pointer;
+  font-size: 1rem;
+  /* 应用 PvZ2Regular 字体 */
+  font-family: 'PvZ2Regular';
+}
+
+/* ===== 按钮前的图标样式 ===== */
+.icon {
+  width: 1.3em;
+  height: 1.3em;
+  margin-right: 6px;
+  vertical-align: middle;
+  fill: currentColor;
+  flex-shrink: 0;
+}
+
+/* 新闻列表标题和详情页标题 */
+#news-content-area h2,
+.news-detail-container h2 { /* 调整选择器，包括 news-list-container h2 */
+  font-size: 2.2rem;
+  color: #7dc8ff;
+  text-shadow: 0 2px 10px rgba(33, 150, 243, 0.4);
+  text-align: center;
+  margin-bottom: 20px;
+}
+
+.news-detail-date-wrapper { /* 新增一个日期包装器样式 */
+  text-align: center;
+  font-size: 1.1rem;
+  color: rgba(255, 255, 255, 0.7);
+  padding-bottom: 15px; /* 增加底部内边距，为分隔线留出空间 */
+  margin-bottom: 10px; /* 增加与下方内容的间距 */
+  border-bottom: 1px solid rgba(255, 255, 255, 0.2); /* 添加分隔线 */
+  display: block; /* 确保 border-bottom 能正确显示 */
+}
+
+#news-content-area {
+  /* 关键的 Grid 布局和宽度控制 */
+  grid-column: 1 / -1; /* 跨越所有列，使其与 #download-card 行为一致 */
+  width: calc(100% - 70px); /* 宽度计算方式与 #download-card 相同 */
+  margin: 20px auto; /* 确保自身也居中 */
+}
+
+.news-container {
+  /* 与 .card 保持一致的基础样式 */
+  background-color: rgba(0, 0, 0, 0.7);
+  border-radius: 10px;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
+
+  /* 确保新闻容器的最大宽度不超过 overlay 的最大宽度，并保持一致 */
+  max-width: 1200px; /* 显式设置 max-width，确保与 overlay 的 max-width 匹配 */
+  box-sizing: border-box; /* 确保 padding 包含在 width 内 */
+}
+
+/* ===== 新闻列表项链接样式 ===== */
+/* 新增：包裹整个新闻列表项的链接 */
+.news-list-item-link {
+    text-decoration: none; /* 移除下划线 */
+    color: inherit; /* 继承父元素的颜色 */
+    display: block; /* 确保链接占据整个新闻项的宽度 */
+    margin-bottom: 20px; /* 链接之间保持间距 */
+    transition: transform 0.3s ease, box-shadow 0.3s ease; /* 添加过渡效果 */
+    border-radius: 10px; /* 确保圆角与内部新闻项一致 */
+    overflow: hidden; /* 防止内容溢出圆角 */
+}
+
+/* 移除 news-list-item 自身的 margin-bottom，因为它现在由 news-list-item-link 控制 */
+.news-list-item {
+    display: flex; /* 使用 Flexbox 布局 */
+    align-items: center; /* 垂直居中对齐子项 */
+    background-color: rgba(0, 0, 0, 0.7); /* 半透明背景 */
+    border-radius: 10px; /* 圆角 */
+    padding: 15px; /* 内边距 */
+    /* margin-bottom: 20px; */ /* 移除这里，由 news-list-item-link 控制 */
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3); /* 阴影效果 */
+    position: relative; /* 用于日期定位 */
+    overflow: hidden; /* 确保内容不溢出圆角 */
+    border: 1px solid rgba(255, 255, 255, 0.1); /* 轻微边框 */
+    width: 100%; /* 确保填满父级链接的宽度 */
+    box-sizing: border-box;
+}
+
+/* 调整 news-list-item-link 的悬停效果 */
+.news-list-item-link:hover {
+  transform: translateY(-2px); /* 悬停时上浮 */
+  box-shadow: 0 8px 16px rgba(0, 0, 0, 0.5); /* 悬停时增强阴影 */
+}
+
+/* 内部元素的颜色变化 */
+.news-list-item-link:hover .news-content-text h3 {
+  color: #307AF7; /* 悬停时标题变为蓝色 */
+}
+
+
+.news-list-item:last-child {
+    margin-bottom: 0; /* 最后一个新闻项底部无间距 */
+}
+
+/* 封面图片样式 */
+.news-cover {
+    width: 150px; /* 封面宽度 */
+    height: 100px; /* 封面高度 */
+    object-fit: cover; /* 保持图片比例，裁剪多余部分 */
+    border-radius: 5px; /* 封面图片圆角 */
+    margin-right: 20px; /* 封面与文字内容的间距 */
+    flex-shrink: 0; /* 防止图片缩小 */
+}
+
+/* 新闻内容区域（标题、摘要） */
+.news-content-text {
+    flex-grow: 1; /* 允许文本内容区域占据剩余空间 */
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    padding-right: 120px; /* 为日期留出空间 */
+}
+
+/* 标题下方的分隔线 */
+.news-title-divider {
+    border-top: 1px solid rgba(255, 255, 255, 0.2); /* 细线 */
+    margin-top: 5px; /* 与标题的间距 */
+    margin-bottom: 10px; /* 与摘要的间距 */
+    width: 80%; /* 线的宽度 */
+}
+
+/* 摘要样式 */
+.news-summary {
+    color: rgba(255, 255, 255, 0.8);
+    font-size: 0.9rem;
+    line-height: 1.4;
+    display: -webkit-box; /* 限制行数 */
+    -webkit-line-clamp: 2; /* 最多显示2行 */
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+/* 日期样式 - 定位在右下角 */
+.news-date {
+    position: absolute;
+    bottom: 15px;
+    right: 15px;
+    color: rgba(255, 255, 255, 0.6);
+    font-size: 0.85rem;
+    white-space: nowrap; /* 防止日期换行 */
+}
+
+/* 响应式调整 */
+@media (max-width: 768px) {
+    .news-list-item-link {
+        margin-bottom: 15px; /* 调整小屏幕下链接间距 */
+    }
+
+    .news-list-item {
+        flex-direction: column; /* 小屏幕下垂直堆叠 */
+        align-items: flex-start; /* 顶部对齐 */
+        padding-bottom: 40px; /* 为日期留出更多空间 */
+    }
+
+    .news-cover {
+        margin-right: 0;
+        margin-bottom: 15px; /* 封面与文字的垂直间距 */
+        width: 100%; /* 封面宽度占满 */
+        height: auto; /* 高度自适应 */
+    }
+
+    .news-content-text {
+        padding-right: 0; /* 移除右侧填充 */
+        width: 100%;
+    }
+
+    .news-title-divider {
+        width: 100%; /* 线的宽度占满 */
+    }
+
+    .news-date {
+        position: absolute; /* 保持绝对定位 */
+        bottom: 10px; /* 调整底部位置 */
+        right: 15px; /* 调整右侧位置 */
+    }
+}
+
+/* 单篇新闻详情页样式 */
+.news-detail-container {
+  padding: 35px;
+}
+
+.news-detail-title {
+  text-align: center;
+  font-size: 2.8rem;
+  margin-bottom: 15px;
+  color: #7dc8ff;
+  text-shadow: 0 3px 15px rgba(33, 150, 243, 0.5);
+}
+
+.news-detail-date {
+  text-align: center;
+  font-size: 1.1rem;
+  color: rgba(255, 255, 255, 0.7);
+  margin-bottom: 30px;
+}
+
+.news-detail-content {
+  line-height: 1.8;
+  font-size: 1.15rem;
+  color: #e6e6e6;
+}
+
+.news-detail-content h1,
+.news-detail-content h2,
+.news-detail-content h3,
+.news-detail-content h4,
+.news-detail-content h5,
+.news-detail-content h6 {
+  color: #7dc8ff;
+  margin-top: 2em;
+  margin-bottom: 0.8em;
+  padding-bottom: 0.3em;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.news-detail-content p {
+  margin-bottom: 1em;
+}
+
+.news-detail-content ul,
+.news-detail-content ol {
+  margin-left: 20px;
+  margin-bottom: 1em;
+}
+
+.news-detail-content li {
+  margin-bottom: 0.5em;
+}
+
+.news-detail-content a {
+  color: #307AF7;
+  text-decoration: none;
+}
+
+.news-detail-content a:hover {
+  text-decoration: underline;
+}
+
+/* 返回按钮 */
+#back-to-news-list-btn {
+    min-width: 180px;
+}
+
+#game-title-logo {
+  height: 15rem;
+  object-fit: contain;
+}
+
+#back-to-news-list-container {
+  text-align: center;
+  margin-top: 20px;
+}
+
+.hidden {
+    display: none !important; /* 使用 !important 确保覆盖内联或默认样式 */
+}

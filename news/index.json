@@ -1,0 +1,16 @@
+[
+  {
+    "id": "second-news",
+    "file": "second-news",
+    "date": "2024/2/6",
+    "title": {
+      "zh": "测试中文标题",
+      "en": "Test English Title"
+    },
+    "summary": {
+      "zh": "测试中文总结",
+      "en": "Test English Summary"
+    },
+    "cover_url": "assets/news_covers/123.jpg"
+  }
+]

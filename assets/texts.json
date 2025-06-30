@@ -1,6 +1,9 @@
 {
   "zh": {
     "Title": "PvZ2: SHUTTLE",
+    "NavbarHome": "主页",
+    "NavbarNews": "新闻",
+    "SelectLanguageTitle": "选择语言",
     "Download": "下载",
     "Version": "最新版本：V25.6.1",
     "Download-cn-1": "夸克网盘",
@@ -22,10 +25,15 @@
     "QQGroup4": "QQ 群：872479956",
     "QQGroup5": "QQ 群：263120940",
     "QQChannel": "QQ 频道",
-    "Discord": "Discord 服务器"
+    "Discord": "Discord 服务器",
+    "BackToNewsList": "← 返回新闻列表",
+    "NewsListTitle": "最新新闻"
   },
   "en": {
     "Title": "PvZ2: SHUTTLE",
+    "NavbarHome": "Home",
+    "NavbarNews": "News",
+    "SelectLanguageTitle": "Select Language",
     "Download": "Download",
     "Version": "Latest Version: V25.6.1",
     "Download-cn-1": "Quark Netdisk",
@@ -47,6 +55,8 @@
     "QQGroup4": "QQ Group: 872479956",
     "QQGroup5": "QQ Group: 263120940",
     "QQChannel": "QQ Channel",
-    "Discord": "Discord Server"
+    "Discord": "Discord Server",
+    "BackToNewsList": "← Back to News List",
+    "NewsListTitle": "Latest News"
   }
 }

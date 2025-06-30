@@ -39,9 +39,9 @@
 
       <div class="card" id="news-content-area"></div>
     </div>
-
     <script type="module">
       let appConfig
+      // 不再需要 appTextsJson 和 appIconsModule
 
       async function loadInitialData() {
         const configRes = await fetch(
@@ -49,22 +49,27 @@
         )
         appConfig = await configRes.json()
 
-        // 1. 调用 main.js 的 init 函数来初始化通用UI
+        // 同样，调用 main.init 来初始化导航栏和语言选择器
         const mainModule = await import(
           new URL(appConfig.mainJs, window.location.origin)
         )
         await mainModule.init(
+          // 确保这里是 await
           appConfig,
           appConfig.textsJson,
           appConfig.iconsJs,
           appConfig.styleCss
         )
 
-        // 2. 然后再调用 news.js 的 initNews 来渲染新闻内容
+        // 然后再调用 news.js 的 initNews 来渲染新闻内容
         const newsModule = await import(
           new URL('/js/news.js', window.location.origin)
         )
-        await newsModule.initNews(appConfig, appConfig.newsJson)
+        await newsModule.initNews(
+          // 确保这里是 await
+          appConfig,
+          appConfig.newsJson
+        )
       }
 
       document.addEventListener('DOMContentLoaded', loadInitialData)

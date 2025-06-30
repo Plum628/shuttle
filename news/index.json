@@ -1,16 +1,33 @@
 [
   {
-    "id": "second-news",
-    "file": "second-news",
-    "date": "2024/2/6",
+    "id": "update-details-(v25.6.1)",
+    "file": "update-details-(v25.6.1)",
+    "date": "2025-06-01",
     "title": {
-      "zh": "测试中文标题",
-      "en": "Test English Title"
+      "zh": "《PvZ2: SHUTTLE》25.6.1版本更新说明",
+      "en": "Version 25.6.1 Update Details | PvZ2: SHUTTLE"
     },
     "summary": {
-      "zh": "测试中文总结",
-      "en": "Test English Summary"
+      "zh": "月下金沙漫水天，尸群踏潮卷沙尘。",
+      "en": "Beneath the moon, golden sands flood the sky. Zombie swarm trample the rising tide, stirring sandstorms of war."
     },
-    "cover_url": "assets/news_covers/123.jpg"
+    "cover_url": "/assets/news/Deluge-on-the-Golden-Sands.png"
+  },
+  {
+    "id": "update-details-(v25.5.1)",
+    "file": "update-details-(v25.5.1)",
+    "date": "2025-05-01",
+    "title": {
+      "zh": "《PvZ2: SHUTTLE》25.5.1版本更新说明",
+      "en": "Version 25.5.1 Update Details | PvZ2: SHUTTLE"
+    },
+    "summary": {
+      "zh": "当怀表再次走动，裂隙悄然开启。打开异界之信，找到异界之物，在时间错位之前！",
+      "en": "When the watch ticks, a rift opens. Open the otherworld letters, find the \"artifacts\" before the time warp!"
+    },
+    "cover_url": {
+      "zh": "/assets/news/Triangular-Collaboration-(CN).png",
+      "en": "/assets/news/Triangular-Collaboration-(EN).png"
+    }
   }
 ]

@@ -1,18 +1,26 @@
 <!DOCTYPE html>
-<html lang="en"> 
+<html lang="en">
   <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta name="description" content="PvZ2: SHUTTLE is one of the most famous Chinese PvZ2 mods, it is a difficulty-focused mod that aims to bring extremely challenging experiences with a variety of features!"/>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta
+      name="description"
+      content="PvZ2: SHUTTLE is one of the most famous Chinese PvZ2 mods, it is a difficulty-focused mod that aims to bring extremely challenging experiences with a variety of features!"
+    />
     <title>PvZ2: SHUTTLE</title>
-    <link rel="stylesheet" href="assets/style.css">
+    <link rel="stylesheet" href="assets/style.css" />
   </head>
 
   <body>
     <div class="navbar">
       <div class="navbar-left">
         <a href="/" class="navbar-btn" id="home-btn" aria-label="Home Page"></a>
-        <a href="/news" class="navbar-btn" id="news-btn" aria-label="News Page"></a>
+        <a
+          href="/news"
+          class="navbar-btn"
+          id="news-btn"
+          aria-label="News Page"
+        ></a>
       </div>
       <div class="navbar-right">
         <select class="lang-select" id="lang-select" title="Select Language">
@@ -25,7 +33,12 @@
     <div class="overlay">
       <div class="header-container">
         <img class="logo" id="game-icon" src="" alt="Game Icon" />
-        <img id="game-title-logo" src="" alt="Title Logo" style="height: 15rem; object-fit: contain" />
+        <img
+          id="game-title-logo"
+          src=""
+          alt="Title Logo"
+          style="height: 15rem; object-fit: contain"
+        />
       </div>
 
       <div class="card" id="download-card">
@@ -50,20 +63,29 @@
       </div>
     </div>
     <script type="module">
-      async function main() {
-        const res = await fetch(new URL('/assets/config.json', import.meta.url));
-        const config = await res.json();
+      let appConfig
+      // 不再需要 appTextsJson 和 appIconsModule
 
-        const mainJsPath = config.mainJs;
-        const textsJsonPath = config.textsJson;
-        const iconsJsPath = config.iconsJs;
-        const styleCssPath = config.styleCss; 
+      async function loadInitialData() {
+        const configRes = await fetch(
+          new URL('/assets/config.json', window.location.origin)
+        )
+        appConfig = await configRes.json()
 
-        const module = await import(new URL(mainJsPath, import.meta.url));
-        module.init(config, textsJsonPath, iconsJsPath, styleCssPath);
+        // 只需调用 main.init，它会处理所有的语言、文本、图标加载和 UI 渲染
+        const mainModule = await import(
+          new URL(appConfig.mainJs, window.location.origin)
+        )
+        await mainModule.init(
+          // 确保这里是 await
+          appConfig,
+          appConfig.textsJson, // 传递 textsJson 的路径
+          appConfig.iconsJs, // 传递 iconsJs 的路径
+          appConfig.styleCss // 传递 styleCss 的路径
+        )
       }
 
-      main().catch(console.error);
+      document.addEventListener('DOMContentLoaded', loadInitialData)
     </script>
   </body>
 </html>

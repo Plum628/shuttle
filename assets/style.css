@@ -327,7 +327,6 @@ h1 {
   color: #307AF7; /* 悬停时标题变为蓝色 */
 }
 
-
 .news-list-item:last-child {
     margin-bottom: 0; /* 最后一个新闻项底部无间距 */
 }
@@ -365,7 +364,7 @@ h1 {
     font-size: 0.9rem;
     line-height: 1.4;
     display: -webkit-box; /* 限制行数 */
-    -webkit-line-clamp: 2; /* 最多显示2行 */
+    line-clamp: 2; /* 最多显示2行 */
     -webkit-box-orient: vertical;
     overflow: hidden;
     text-overflow: ellipsis;
@@ -379,6 +378,15 @@ h1 {
     color: rgba(255, 255, 255, 0.6);
     font-size: 0.85rem;
     white-space: nowrap; /* 防止日期换行 */
+}
+
+.news-detail-content img {
+    max-width: 100%; /* 最大宽度为其父容器的100% */
+    height: auto;    /* 高度自动调整，保持图片比例 */
+    display: block;  /* 移除图片底部的额外空间 */
+    margin: 15px auto; /* 上下外边距，左右居中 */
+    border-radius: 5px; /* 轻微圆角 */
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1); /* 轻微阴影 */
 }
 
 /* 响应式调整 */

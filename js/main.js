@@ -276,8 +276,8 @@ async function updateUI(config, textsJson, iconsModule) {
       titleDevelopersEl.textContent = t['Developers'] || 'Developers'; // 检查键是否存在
       devContainer.innerHTML = '';
       // 确保 iconsModule 已经加载并且属性可用
-      const ICON_BILIBILI = iconsModule ? iconsModule.ICON_BILIBILI : '';
-      const ICON_YOUTUBE = iconsModule ? iconsModule.ICON_YOUTUBE : '';
+      const ICON_BILIBILI = iconsModule.ICONS.bilibili;
+      const ICON_YOUTUBE = iconsModule.ICONS.youtube;
 
       config.developers.bilibili.forEach((url, i) => {
         const a = document.createElement('a');
@@ -309,9 +309,9 @@ async function updateUI(config, textsJson, iconsModule) {
       titleCommunityEl.textContent = t['Community'] || 'Community'; // 检查键是否存在
       grpContainer.innerHTML = '';
       // 确保 iconsModule 已经加载并且属性可用
-      const ICON_QQ = iconsModule ? iconsModule.ICON_QQ : '';
-      const ICON_QQ_CHANNEL = iconsModule ? iconsModule.ICON_QQ_CHANNEL : '';
-      const ICON_DISCORD = iconsModule ? iconsModule.ICON_DISCORD : '';
+      const ICON_QQ = iconsModule.ICONS.qq;
+      const ICON_QQ_CHANNEL = iconsModule.ICONS.qqChannel;
+      const ICON_DISCORD = iconsModule.ICONS.discord;
 
       Object.entries(config.social.qq_groups).forEach(([_, url], i) => {
         const a = document.createElement('a');
@@ -408,53 +408,71 @@ export async function init(config, textsJsonPath, iconsJsPath, styleCssPath) {
     document.head.appendChild(link);
   }
 
-  // 3. 处理语言选择器 (通用逻辑，应在 init 中设置一次)
-  function getUrlLangParam() {
-    const params = new URLSearchParams(window.location.search);
-    const langParam = params.get('lang');
-    if (!langParam) return null;
-    return langParam.startsWith('zh') ? 'zh-CN' : 'en-US';
-  }
+  // 3. 处理语言切换器
+  const langSwitch = document.getElementById('lang-switch');
+  if (langSwitch) {
+    const langSwitchBtn = document.getElementById('lang-switch-btn');
+    const langDropdown = document.getElementById('lang-dropdown');
 
-  const urlLang = getUrlLangParam();
-  const browserLang = navigator.language.startsWith('zh') ? 'zh-CN' : 'en-US';
-  const initialLang = urlLang || browserLang;
-
-  const langSelect = document.getElementById('lang-select');
-  if (langSelect) {
-    langSelect.value = initialLang;
-    langSelect.setAttribute('title', textsJson[initialLang.startsWith('zh') ? 'zh' : 'en']['SelectLanguageTitle'] || "Select Language");
-
-    if (!langSelect.dataset.mainListenerAdded) {
-      langSelect.addEventListener('change', async (e) => {
-        showLoader(); // 在语言切换处理前显示加载器
-        const newLang = e.target.value;
-        const currentUrl = new URL(window.location.href);
-        currentUrl.searchParams.set('lang', newLang);
-        history.replaceState(null, '', currentUrl.toString());
-
-        try {
-          await updateUI(config, textsJson, iconsModule);
-
-          const currentPathname = window.location.pathname;
-          if (currentPathname.startsWith('/news/') ||
-            currentPathname.endsWith('/news.html') ||
-            currentPathname === '/news/') {
-            const newsModule = await import(new URL(config.newsJs, window.location.origin)); // 使用 config.newsJs
-            await newsModule.initNews(config, config.newsJson);
-          }
-        } catch (error) {
-          console.error('语言切换期间出错：', error);
-          // 可选：显示错误消息
-        } finally {
-          hideLoader(); // 在所有重新初始化完成后隐藏加载器
-        }
-
-        const newLangShort = newLang.startsWith('zh') ? 'zh' : 'en';
-        langSelect.setAttribute('title', textsJson || "Select Language");
-      });
-      langSelect.dataset.mainListenerAdded = 'true';
+    // 注入SVG图标
+    if (langSwitchBtn) {
+      langSwitchBtn.innerHTML = iconsModule.ICONS.language;
     }
+
+    // 设置初始 title
+    const initialLang = (new URLSearchParams(window.location.search).get('lang') || navigator.language).startsWith('zh') ? 'zh' : 'en';
+    if (langSwitchBtn) {
+      langSwitchBtn.setAttribute('title', textsJson[initialLang]['SelectLanguageTitle'] || 'Select Language');
+    }
+
+    // 点击按钮显示/隐藏下拉菜单
+    if (langSwitchBtn && !langSwitchBtn.dataset.listenerAdded) {
+      langSwitchBtn.addEventListener('click', (event) => {
+        event.stopPropagation(); // 防止点击事件冒泡到 window
+        langDropdown.classList.toggle('show');
+      });
+      langSwitchBtn.dataset.listenerAdded = 'true';
+    }
+
+    // 点击下拉菜单中的语言选项
+    if (langDropdown && !langDropdown.dataset.listenerAdded) {
+      langDropdown.addEventListener('click', async (event) => {
+        if (event.target.tagName === 'A') {
+          event.preventDefault();
+          showLoader();
+          const newLang = event.target.dataset.lang;
+          langDropdown.classList.remove('show');
+
+          const currentUrl = new URL(window.location.href);
+          currentUrl.searchParams.set('lang', newLang);
+          history.replaceState(null, '', currentUrl.toString());
+
+          try {
+            await updateUI(config, textsJson, iconsModule);
+
+            const currentPathname = window.location.pathname;
+            if (currentPathname.startsWith('/news/') || currentPathname.endsWith('/news.html') || currentPathname === '/news/') {
+              const newsModule = await import(new URL(config.newsJs, window.location.origin));
+              await newsModule.initNews(config, config.newsJson);
+            }
+          } catch (error) {
+            console.error('语言切换期间出错：', error);
+          } finally {
+            hideLoader();
+          }
+        }
+      });
+      langDropdown.dataset.listenerAdded = 'true';
+    }
+
+    // 点击窗口其他地方隐藏下拉菜单
+    window.addEventListener('click', (event) => {
+      if (langDropdown && langDropdown.classList.contains('show')) {
+        if (!langSwitch.contains(event.target)) {
+          langDropdown.classList.remove('show');
+        }
+      }
+    });
   }
 
   // 4. 调用 updateUI 进行首次渲染 (这个调用会负责等待字体和图片)

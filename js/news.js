@@ -21,23 +21,57 @@ function formatNewsDate(dateString, langCode) {
   }
 }
 
+// 辅助函数：等待指定容器内的所有图片加载完成
+// 注意：这个函数与 main.js 中的类似，但为了模块独立性，可以单独存在。
+// 如果你想保持 DRY (Don't Repeat Yourself)，可以考虑将这个函数放到一个公共的工具文件中，然后导入。
+async function waitForNewsImagesToLoad(container) {
+  if (!container) {
+    console.warn('Image container not found for news image loading check.');
+    return;
+  }
+
+  // 获取所有 img 标签
+  const images = Array.from(container.querySelectorAll('img'));
+
+  const imagePromises = images.map(img => {
+    // 对于 img 标签，如果已经加载，Promise 立即解决
+    if (img.complete && img.naturalHeight !== 0) {
+      return Promise.resolve();
+    }
+    return new Promise(resolve => {
+      img.addEventListener('load', () => {
+        // console.log('News image loaded:', img.src); // 调试日志
+        resolve();
+      }, { once: true });
+      img.addEventListener('error', (e) => {
+        console.warn('News image failed to load:', img.src, e);
+        resolve(); // 即使加载失败也解决，避免卡住
+      }, { once: true });
+    });
+  });
+
+  await Promise.all(imagePromises);
+  // console.log('所有新闻图片已加载。'); // 调试日志
+}
+
+
 export async function initNews(config, newsJsonPath) {
-  // console.log('initNews called!'); // 添加日志，确认函数是否执行
+  // console.log('initNews called!');
 
   // 1. 加载新闻数据 (news.json)
   const newsResponse = await fetch(new URL(newsJsonPath, window.location.origin));
   if (!newsResponse.ok) {
     console.error('Failed to load news.json:', newsResponse.status, newsResponse.statusText);
-    // 如果 news.json 加载失败，直接显示错误信息并返回
     const newsContentArea = document.getElementById('news-content-area');
     if (newsContentArea) {
       newsContentArea.innerHTML = '<p>新闻数据加载失败，请稍后再试。</p>';
-      newsContentArea.className = 'card news-list-container'; // 或者其他错误样式
+      newsContentArea.className = 'card news-list-container';
     }
-    return;
+    // 返回，但不隐藏加载器，让主页的 finally 块来处理，或者直接在这里抛出错误让外层捕获
+    throw new Error('Failed to load news.json'); // 抛出错误，让 loadInitialData 的 catch 处理
   }
   const newsData = await newsResponse.json();
-  // console.log('News Data:', newsData); // 打印数据，确认是否加载成功
+  // console.log('News Data:', newsData);
 
   // 2. 获取当前语言
   const urlParams = new URLSearchParams(window.location.search);
@@ -55,16 +89,16 @@ export async function initNews(config, newsJsonPath) {
     if (newsContentArea) {
       newsContentArea.innerHTML = '<p>语言文本加载失败，请稍后再试。</p>';
     }
-    return;
+    throw new Error('Failed to load texts.json'); // 抛出错误
   }
   const textsJson = await textsResponse.json();
   const t = textsJson[shortLang];
-  // console.log('Texts Data (t):', t); // 打印文本数据
+  // console.log('Texts Data (t):', t);
 
   const newsContentArea = document.getElementById('news-content-area');
   if (!newsContentArea) {
     console.error('Error: news-content-area element not found!');
-    return; // 如果容器不存在，则无法渲染
+    throw new Error('News content area not found.'); // 抛出错误
   }
 
   // 4. 解析新闻 ID (从 URL 路径)
@@ -73,51 +107,31 @@ export async function initNews(config, newsJsonPath) {
   const newsPathIndex = pathParts.indexOf('news');
 
   if (newsPathIndex > -1 && newsPathIndex + 1 < pathParts.length) {
-    // 检查 /news/ 后面是否跟着一个 ID
     const potentialId = pathParts[newsPathIndex + 1];
-    // 验证这个 potentialId 是否确实是新闻 ID
     if (newsData.some(item => item.id === potentialId)) {
       newsId = potentialId;
     }
   }
 
-  // console.log('Resolved News ID:', newsId); // 打印解析到的新闻 ID
+  // console.log('Resolved News ID:', newsId);
 
   // 5. 渲染新闻列表或单篇新闻
   if (newsId) {
-    // 传递 currentLang 而不是 shortLang 给 renderSingleNews，以便 formatNewsDate 使用
     await renderSingleNews(newsId, newsData, shortLang, newsContentArea, t, currentLang, config);
   } else {
-    // 传递 currentLang 而不是 shortLang 给 renderNewsList，以便 formatNewsDate 使用
-    renderNewsList(newsData, currentLang, shortLang, newsContentArea, t);
+    // *** 关键修改：等待 renderNewsList 完成渲染，并等待其中的图片加载 ***
+    await renderNewsList(newsData, currentLang, shortLang, newsContentArea, t);
   }
 
-  // 语言选择器事件监听 (这个应该由 main.js 处理，但如果 news.js 也有自己的逻辑，确保不冲突)
-  // 如果 main.js 已经处理了 lang-select，这里就不要重复添加事件监听器了
-  // 如果 news.js 需要语言选择器来刷新新闻内容，可以保留，但需要确保 initNews 不被重复调用
-  // 暂时注释掉这部分，让 main.js 统一管理语言选择
-  /*
-  const langSelect = document.getElementById('lang-select');
-  if (langSelect) {
-    if (!langSelect.dataset.newsListenerAdded) {
-      langSelect.addEventListener('change', async (e) => {
-        const newLang = e.target.value;
-        const currentUrl = new URL(window.location.href);
-        currentUrl.searchParams.set('lang', newLang);
-        history.replaceState(null, '', currentUrl.toString());
-        
-        // 重新调用 initNews 来刷新新闻内容 (注意这里的递归调用可能会导致一些问题，
-        // 更好的做法是让 main.js 的语言选择器调用一个统一的刷新函数)
-        // 但为了兼容现有结构，暂时保留
-        initNews(config, newsJsonPath); 
-      });
-      langSelect.dataset.newsListenerAdded = 'true';
-    }
-  }
-  */
+  // *** 关键修改：在 renderNewsList/renderSingleNews 完成并图片加载后，才让 initNews 完成 ***
+  // 在这里等待新闻列表/单篇新闻中的图片加载
+  await waitForNewsImagesToLoad(newsContentArea);
+
+  // console.log('initNews completed, all news content and images should be loaded.');
 }
 
-function renderNewsList(newsData, currentLang, shortLang, container, t) {
+
+async function renderNewsList(newsData, currentLang, shortLang, container, t) {
   container.innerHTML = `<h2>${t['NewsListTitle'] || 'News List'}</h2>`;
   container.className = 'card news-list-container';
 
@@ -126,26 +140,28 @@ function renderNewsList(newsData, currentLang, shortLang, container, t) {
   newsData.forEach(newsItem => {
     const newsTitle = newsItem.title[shortLang] || newsItem.title['en'] || 'Untitled';
     const newsSummary = newsItem.summary ? (newsItem.summary[shortLang] || newsItem.summary['en'] || '') : '';
-    // *** 修改点1: 使用 formatNewsDate 函数格式化日期 ***
     const formattedDate = formatNewsDate(newsItem.date, currentLang);
 
     let newsCoverPath = '';
-    // *** 关键改动：处理 cover_url 为对象的情况 ***
     if (typeof newsItem.cover_url === 'string') {
-      // 如果 cover_url 仍然是字符串 (旧格式)，直接使用
       newsCoverPath = newsItem.cover_url;
     } else if (typeof newsItem.cover_url === 'object' && newsItem.cover_url !== null) {
-      // 如果 cover_url 是对象，根据 shortLang 选择对应的路径
-      // 优先使用当前语言，如果当前语言没有，则尝试使用英文 'en'，否则为空
       newsCoverPath = newsItem.cover_url[shortLang] || newsItem.cover_url['en'] || '';
     }
 
     // 确保图片路径是绝对路径，并考虑 CDN
-    // (这里的 logic 假设 newsCoverPath 已经是一个像 "/assets/news/image.png" 的路径)
-    const finalCoverUrl = newsCoverPath ? `/${newsCoverPath.startsWith('/') ? newsCoverPath.substring(1) : newsCoverPath}` : '';
+    // 这里我们假设 newsCoverPath 是相对于网站根目录的路径，例如 'assets/news/some-image.png'
+    // 并且 config 中有 resolvePath 函数或类似的逻辑来处理 CDN
+    // 因为 news.js 无法直接访问 main.js 的 resolvePath，这里需要一个独立的解析逻辑
+    // 或者将 resolvePath 提取到一个共享工具文件并导入
+    // 为了简化，我们假设 newsCoverPath 已经是可用 URL 片段，并直接构建 URL。
+    // 如果 config.useCdn 适用于新闻图片，你可能需要将 resolvePath 也移植到 news.js 或通过参数传递。
+    // For now, let's assume it's relative to root or fully qualified.
+    const finalCoverUrl = newsCoverPath ? new URL(newsCoverPath, window.location.origin).toString() : '';
+
 
     const newsLink = document.createElement('a');
-    newsLink.href = `/news/${newsItem.id}/?lang=${currentLang}`; // 绝对路径
+    newsLink.href = `/news/${newsItem.id}/?lang=${currentLang}`;
     newsLink.className = 'news-list-item-link';
 
     const newsCard = document.createElement('div');
@@ -155,16 +171,19 @@ function renderNewsList(newsData, currentLang, shortLang, container, t) {
       ${finalCoverUrl ? `<img src="${finalCoverUrl}" alt="${newsTitle} Cover" class="news-cover">` : ''}
       <div class="news-content-text">
         <h3>${newsTitle}</h3>
-        <div class="news-title-divider"></div> ${newsSummary ? `<p class="news-summary">${newsSummary}</p>` : ''}
+        <div class="news-title-divider"></div>
+        ${newsSummary ? `<p class="news-summary">${newsSummary}</p>` : ''}
       </div>
-      <p class="news-date">${formattedDate}</p> `;
+      <p class="news-date">${formattedDate}</p>
+    `;
 
     newsLink.appendChild(newsCard);
     container.appendChild(newsLink);
   });
+  // console.log('News list rendered.');
+  // 无需返回 Promise，因为图片加载将在 initNews 内部的 waitForNewsImagesToLoad 处理
 }
 
-// 接收 t 和 currentLang 参数，以及 config (用于 resolvePath)
 async function renderSingleNews(newsId, newsData, shortLang, container, t, currentLang, config) {
   const newsItem = newsData.find(item => item.id === newsId);
 
@@ -175,22 +194,10 @@ async function renderSingleNews(newsId, newsData, shortLang, container, t, curre
   }
 
   let markdownContent = '';
-  // 确保这里的 Markdown 文件路径是绝对路径，并支持 CDN
-  // newsItem.file 可能是 "first-news"
-  // 那么路径应该是 /news/first-news.zh.md 或 /news/first-news.en.md
-  // 并且这个路径需要通过 resolvePath 处理
-
-  // 临时方案：在 news.js 内部定义一个简化的 resolvePath，或者从 main.js 导入
-  // 考虑到 modularity，我们应该导入 resolvePath 或者在这个模块内定义一个
-  // 鉴于 main.js 已经有了，我们尝试从 main.js 导入
-  // 但是，如果 main.js 中的 resolvePath 不是 export 的，那就有点麻烦了
-
-  // 假设 config 包含了 cdnBase 和 useCdn，我们在 news.js 也需要一个 resolvePath
-  // 为了避免重复代码，我们可以让 main.js export resolvePath
-  // 但目前，我们先在 news.js 内部创建一个类似的，以便独立运行
+  // 这里的 newsResolvePath 确保可以正确解析 CDN 和本地路径，与 main.js 中的逻辑保持一致
   const newsResolvePath = (p) => {
     if (!p) return '';
-    if (config.useCdn && config.cdnBase) { // 确保 cdnBase 存在
+    if (config.useCdn && config.cdnBase) {
       return new URL(p.replace(/^\/+/, ''), config.cdnBase).toString();
     } else {
       return new URL(p.replace(/^\/+/, ''), window.location.origin).toString();
@@ -213,10 +220,9 @@ async function renderSingleNews(newsId, newsData, shortLang, container, t, curre
     console.error('Error fetching markdown:', error);
     container.innerHTML = `<p>${t['FailedToLoadNews'] || 'Failed to load news content.'}</p>`;
     container.className = 'card news-detail-container';
-    return;
+    return; // 不要抛出错误，因为这里已经处理了显示错误信息
   }
 
-  // 确保 marked 已加载到全局作用域 (通常由 <script src="...marked.min.js"></script> 解决)
   const renderedHtml = window.marked ? window.marked.parse(markdownContent) : markdownContent;
   if (!window.marked) {
     console.warn("Marked.js is not loaded. Markdown content will be displayed as plain text.");
@@ -224,7 +230,6 @@ async function renderSingleNews(newsId, newsData, shortLang, container, t, curre
 
   const formattedDate = formatNewsDate(newsItem.date, currentLang);
 
-  // 构建返回按钮的HTML字符串
   const backButtonHtml = `
     <div style="text-align: center; margin-top: 30px;">
         <a href="/news/?lang=${currentLang}" class="adaptive-btn" id="back-to-news-list-btn">${t['BackToNewsList'] || 'Back to News List'}</a>
@@ -233,10 +238,17 @@ async function renderSingleNews(newsId, newsData, shortLang, container, t, curre
 
   container.innerHTML = `
     <h2 class="news-detail-title">${newsItem.title[shortLang] || newsItem.title['en']}</h2>
-    <div class="news-detail-date-wrapper">${formattedDate}</div> <div class="news-detail-content">${renderedHtml}</div>
+    <div class="news-detail-date-wrapper">${formattedDate}</div>
+    <div class="news-detail-content">${renderedHtml}</div>
     ${backButtonHtml}
   `;
   container.className = 'card news-detail-container';
   document.title = (newsItem.title[shortLang] || newsItem.title['en'] || 'News') + ' - PvZ2: SHUTTLE';
   window.scrollTo(0, 0);
+
+  // 单篇新闻也可能包含图片，等待它们加载
+  // 这里通常指 markdown 内部的图片，它们的加载是异步的
+  // 如果 markdown 内部图片使用了 img 标签，waitForNewsImagesToLoad 会处理
+  // 如果是背景图或其他方式，可能需要更复杂的处理
+  // 我们依赖 waitForNewsImagesToLoad 遍历 container 来处理
 }

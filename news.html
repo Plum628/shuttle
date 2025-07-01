@@ -12,6 +12,22 @@
     <script src="https://cdn.jsdelivr.net/npm/marked@latest/marked.min.js"></script>
   </head>
   <body>
+    <div id="loading-overlay" class="loading-overlay">
+      <div class="lds-default">
+        <div></div>
+        <div></div>
+        <div></div>
+        <div></div>
+        <div></div>
+        <div></div>
+        <div></div>
+        <div></div>
+        <div></div>
+        <div></div>
+        <div></div>
+        <div></div>
+      </div>
+    </div>
     <div class="navbar">
       <div class="navbar-left">
         <a href="/" class="navbar-btn" id="home-btn" aria-label="Home Page"></a>
@@ -39,31 +55,50 @@
       <div class="card" id="news-content-area"></div>
     </div>
     <script type="module">
+      import { showLoader, hideLoader } from '/js/main.js'
+
       let appConfig
 
       async function loadInitialData() {
-        const configRes = await fetch(
-          new URL('/assets/config.json', window.location.origin)
-        )
-        appConfig = await configRes.json()
+        showLoader() // 显示加载器
 
-        const mainModule = await import(
-          new URL(appConfig.mainJs, window.location.origin)
-        )
-        await mainModule.init(
-          appConfig,
-          appConfig.textsJson,
-          appConfig.iconsJs,
-          appConfig.styleCss
-        )
+        try {
+          const configRes = await fetch(
+            new URL('/assets/config.json', window.location.origin)
+          )
+          appConfig = await configRes.json()
 
-        // 从 config.json 读取 news.js 路径
-        const newsModule = await import(
-          new URL(appConfig.newsJs, window.location.origin)
-        )
-        await newsModule.initNews(appConfig, appConfig.newsJson)
+          const mainModule = await import(
+            new URL(appConfig.mainJs, window.location.origin)
+          )
+          await mainModule.init(
+            // 确保这里等待 main.js 的 init 完成，它现在包含了图片和字体等待逻辑
+            appConfig,
+            appConfig.textsJson,
+            appConfig.iconsJs,
+            appConfig.styleCss
+          )
+
+          // 仅在 news.html 或新闻相关路径时加载 newsModule
+          const currentPathname = window.location.pathname
+          if (
+            currentPathname.startsWith('/news/') ||
+            currentPathname.endsWith('/news.html') ||
+            currentPathname === '/news/'
+          ) {
+            const newsModule = await import(
+              new URL(appConfig.newsJs, window.location.origin)
+            )
+            await newsModule.initNews(appConfig, appConfig.newsJson) // 确保这里等待 news.js 的 initNews 完成
+          }
+        } catch (error) {
+          console.error('初始数据加载期间出错:', error)
+        } finally {
+          hideLoader() // 所有 await 操作完成后，才隐藏加载器
+        }
       }
 
+      // 确保只监听一次 DOMContentLoaded 事件
       document.addEventListener('DOMContentLoaded', loadInitialData)
     </script>
   </body>

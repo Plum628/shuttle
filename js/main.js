@@ -1,7 +1,79 @@
-// js/main.js
+export function showLoader() {
+  const loader = document.getElementById('loading-overlay');
+  const mainContent = document.querySelector('.overlay'); // 获取主内容
+
+  if (loader) {
+    loader.style.opacity = '1';
+    loader.style.visibility = 'visible';
+  }
+  // 确保在加载时隐藏主内容，防止内容闪烁
+  if (mainContent) {
+    mainContent.style.opacity = '0';
+    mainContent.style.visibility = 'hidden';
+  }
+  document.body.style.overflow = 'hidden'; // 隐藏滚动条
+  document.documentElement.style.overflow = 'hidden'; // 针对 html 元素
+}
+
+export function hideLoader() {
+  const loader = document.getElementById('loading-overlay');
+  const mainContent = document.querySelector('.overlay'); // 获取主内容
+
+  if (loader) {
+    loader.style.opacity = '0';
+    loader.style.visibility = 'hidden'; // 立即隐藏
+  }
+  if (mainContent) {
+    mainContent.style.opacity = '1';
+    mainContent.style.visibility = 'visible'; // 立即显示
+  }
+
+  document.body.style.overflow = 'auto'; // 将 body 的 overflow 明确设置为 auto
+  document.documentElement.style.overflow = 'auto'; // 将 html 的 overflow 明确设置为 auto
+}
+
+async function waitForImagesToLoad(containerSelector) {
+  const container = document.querySelector(containerSelector);
+  if (!container) {
+    console.warn(`Container with selector "${containerSelector}" not found for image loading check.`);
+    return;
+  }
+
+  // 获取所有图片元素，包括 img 标签和带有 background-image 的元素
+  const images = Array.from(container.querySelectorAll('img'));
+  // 这里可以根据需要添加更多选择器，比如查找具有特定背景图片的元素
+  // const bgImageElements = Array.from(container.querySelectorAll('[style*="background-image"]'));
+
+  const imagePromises = images.map(img => {
+    // 对于 img 标签，如果已经加载，Promise 立即解决
+    if (img.complete && img.naturalHeight !== 0) {
+      return Promise.resolve();
+    }
+    return new Promise(resolve => {
+      img.addEventListener('load', () => resolve(), { once: true });
+      img.addEventListener('error', () => {
+        console.warn('Image failed to load:', img.src);
+        resolve(); // 即使加载失败也解决，避免卡住
+      }, { once: true });
+    });
+  });
+
+  // 针对 CSS background-image 的处理：
+  // 这种处理更复杂，因为浏览器不会触发 load 事件。
+  // 一种方法是预加载关键背景图片，或者接受它们可能稍后加载的事实。
+  // 考虑到你提到的是 --bg-image，它通常是 body 的背景。
+  // body 的背景图会在 CSS 解析后立即开始加载。
+  // 通常，如果网络不是特别慢，并且图片没有被 JS 延迟设置，它应该会很快加载。
+  // 如果它依然延迟，可能需要通过 JS 强制创建一个 Image 对象来预加载。
+
+  // For now, let's focus on <img> tags and the font.
+  // If --bg-image is still an issue, we can add more specific preloading.
+
+  await Promise.all(imagePromises);
+  console.log('所有关键图片已加载。');
+}
 
 // 辅助函数：将路径转换为绝对路径（支持 CDN）
-// 注意：这个函数现在在 main.js 模块的顶层定义，并接收 config 参数
 function resolvePath(p, config) {
   if (!p) return '';
   if (config.useCdn) {
@@ -17,8 +89,7 @@ function getCurrentLangParam() {
   return urlParams.get('lang');
 }
 
-// 核心 UI 更新函数
-// 这个函数负责根据当前语言和配置更新所有可见的UI元素
+// 核心 UI 更新函数，负责根据当前语言和配置更新所有可见的UI元素
 async function updateUI(config, textsJson, iconsModule) {
   // 获取当前语言 (通用逻辑)
   const urlParams = new URLSearchParams(window.location.search);
@@ -41,13 +112,29 @@ async function updateUI(config, textsJson, iconsModule) {
     fontFaceStyle.id = 'pvz2-font-style';
     document.head.appendChild(fontFaceStyle);
   }
-  // 确保 resolvePath 传递 config
   fontFaceStyle.textContent = `
     @font-face {
       font-family: 'PvZ2Regular';
       src: url('${resolvePath(config.font, config)}') format('woff2');
+      font-display: swap; /* Add font-display to prevent FOIT, allowing text to render with fallback first */
     }
   `;
+
+  // **重要：在 updateUI 中添加 @font-face 规则后，再等待 document.fonts.ready**
+  // 否则，document.fonts.ready 可能在 @font-face 规则被添加到 DOM 之前就解决了。
+  if (document.fonts) {
+    try {
+      // 我们可以等待特定的字体，如果它在文档中被定义
+      // 或者等待所有新添加的字体
+      await document.fonts.ready;
+      console.log('PvZ2Regular 字体已加载。');
+    } catch (error) {
+      console.error('字体加载出错:', error);
+      // 即使字体加载出错，也继续执行，避免页面卡住
+    }
+  } else {
+    console.warn('浏览器不支持 Font Loading API，字体可能延迟显示。');
+  }
 
   // 背景和Logo
   document.body.style.setProperty('--bg-image', `url('${resolvePath(config.background, config)}')`);
@@ -65,7 +152,7 @@ async function updateUI(config, textsJson, iconsModule) {
   // 导航栏按钮文本和链接
   const homeBtn = document.getElementById('home-btn');
   const newsBtn = document.getElementById('news-btn');
-  
+
   // 获取当前的语言参数，用于构建链接
   const langParam = getCurrentLangParam();
   const langQuery = langParam ? `?lang=${langParam}` : '';
@@ -253,8 +340,44 @@ async function updateUI(config, textsJson, iconsModule) {
       grpContainer.remove();
     }
   }
-} // End of updateUI function
 
+  // 在所有 DOM 更新和图片/字体设置完成后，等待图片加载
+  // 我们可以等待 .overlay 容器内的所有图片加载
+  await waitForImagesToLoad('.overlay'); // 等待主内容区的图片加载
+  // 如果 logo 和 icon 不在 .overlay 内部，你需要等待它们的父容器
+  // 或者直接等待 logoEl 和 gameIconEl
+  await Promise.all([
+    new Promise(resolve => {
+      if (logoEl && logoEl.complete) return resolve();
+      if (logoEl) logoEl.addEventListener('load', resolve, { once: true });
+      else resolve();
+    }),
+    new Promise(resolve => {
+      if (gameIconEl && gameIconEl.complete) return resolve();
+      if (gameIconEl) gameIconEl.addEventListener('load', resolve, { once: true });
+      else resolve();
+    })
+  ]);
+  console.log('所有关键Logo和Icon图片已加载。');
+
+
+  // 针对 --bg-image (body 背景图) 的额外检查：
+  // CSS background-image 的加载不像 img 标签那样能通过 JS 监听 load 事件。
+  // 最可靠的方式是提前预加载它。
+  const bgImgPath = resolvePath(config.background, config);
+  const bgPreloader = new Image();
+  bgPreloader.src = bgImgPath;
+  await new Promise(resolve => {
+    if (bgPreloader.complete) return resolve();
+    bgPreloader.onload = resolve;
+    bgPreloader.onerror = () => {
+      console.warn('Background image failed to load:', bgImgPath);
+      resolve(); // 即使加载失败也解决
+    };
+  });
+  console.log('背景图片已预加载。');
+
+}
 
 // 页面初始化入口函数
 export async function init(config, textsJsonPath, iconsJsPath, styleCssPath) {
@@ -303,36 +426,37 @@ export async function init(config, textsJsonPath, iconsJsPath, styleCssPath) {
     langSelect.setAttribute('title', textsJson[initialLang.startsWith('zh') ? 'zh' : 'en']['SelectLanguageTitle'] || "Select Language");
 
     if (!langSelect.dataset.mainListenerAdded) {
-      langSelect.addEventListener('change', async (e) => { // 注意这里是 async 函数
+      langSelect.addEventListener('change', async (e) => {
+        showLoader(); // 在语言切换处理前显示加载器
         const newLang = e.target.value;
-        // 更新 URL 参数
         const currentUrl = new URL(window.location.href);
         currentUrl.searchParams.set('lang', newLang);
         history.replaceState(null, '', currentUrl.toString());
 
-        // 1. 调用 updateUI 函数更新主页/通用页面文本和元素
-        await updateUI(config, textsJson, iconsModule); // 使用 await
+        try {
+          await updateUI(config, textsJson, iconsModule);
 
-        // 2. 如果当前页面是新闻页，重新初始化新闻模块
-        const currentPathname = window.location.pathname;
-        if (currentPathname.startsWith('/news/') || currentPathname.endsWith('/news.html') || currentPathname === '/news/') {
-          try {
-            const newsModule = await import(new URL('/js/news.js', window.location.origin));
-            // 再次调用 news.js 的 initNews，传递必要的 config 和 newsJsonPath
+          const currentPathname = window.location.pathname;
+          if (currentPathname.startsWith('/news/') ||
+            currentPathname.endsWith('/news.html') ||
+            currentPathname === '/news/') {
+            const newsModule = await import(new URL(config.newsJs, window.location.origin)); // 使用 config.newsJs
             await newsModule.initNews(config, config.newsJson);
-          } catch (error) {
-            console.error('Error re-initializing news module on language change:', error);
           }
+        } catch (error) {
+          console.error('语言切换期间出错：', error);
+          // 可选：显示错误消息
+        } finally {
+          hideLoader(); // 在所有重新初始化完成后隐藏加载器
         }
 
-        // 更新选择器的 title 文本
         const newLangShort = newLang.startsWith('zh') ? 'zh' : 'en';
-        langSelect.setAttribute('title', textsJson[newLangShort]['SelectLanguageTitle'] || "Select Language");
+        langSelect.setAttribute('title', textsJson || "Select Language");
       });
       langSelect.dataset.mainListenerAdded = 'true';
     }
   }
 
-  // 4. 调用 updateUI 进行首次渲染
+  // 4. 调用 updateUI 进行首次渲染 (这个调用会负责等待字体和图片)
   await updateUI(config, textsJson, iconsModule);
 }

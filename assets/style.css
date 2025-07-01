@@ -7,8 +7,7 @@ body {
   background: linear-gradient(rgba(0, 0, 0, 0.1), rgba(0, 0, 0, 0.1)),
     var(--bg-image) no-repeat center/cover fixed;
   min-height: 100vh;
-  /* 为顶部栏留出空间 */
-  padding-top: 60px; /* 根据navbar的高度调整 */
+  padding-top: 60px;
   overflow: hidden;
 }
 body::before {
@@ -29,26 +28,22 @@ body::before {
   top: 0;
   left: 0;
   width: 100%;
-  /* 使背景透明与背景融合 */
   background-color: rgba(15, 25, 40, 0.7);
   padding: 10px 20px;
   display: flex;
-  justify-content: space-between; /* 使项目两端对齐 */
+  justify-content: space-between;
   align-items: center;
-  /* 移除顶部栏的阴影 */
-  /* box-shadow: 0 2px 10px rgba(0, 0, 0, 0.5); */
-  z-index: 1000; /* 确保顶部栏在最上层 */
-  box-sizing: border-box; /* 包含padding在内的宽度计算 */
-  /* 添加下划线样式 */
+  z-index: 1000;
+  box-sizing: border-box;
   border-bottom: 1px solid rgba(255, 255, 255, 0.1);
 }
 
 .navbar-left {
   display: flex;
   align-items: center;
-  gap: 40px; /* 按钮之间的间距 */
-  flex-grow: 1; /* 让左侧占据更多空间，以便按钮居中 */
-  justify-content: center; /* 使左侧按钮居中 */
+  gap: 40px;
+  flex-grow: 1;
+  justify-content: center;
 }
 
 .navbar-right {
@@ -57,27 +52,26 @@ body::before {
 }
 
 .navbar-btn {
-  padding: 8px 0px; /* 调整padding以适应下划线 */
-  border-radius: 0; /* 移除圆角 */
-  /* 移除背景和边框 */
+  padding: 8px 0px;
+  border-radius: 0;
   background: none;
   border: none;
-  color: white; /* 默认字体颜色为白色 */
+  color: white;
   text-decoration: none;
   font-size: 1.1rem;
   transition: color 0.3s ease, border-bottom 0.3s ease;
-  position: relative; /* 用于下划线动画 */
+  position: relative;
 }
 
 /* 非当前页面的悬停效果 */
 .navbar-btn:not(.active):hover {
-  color: #307AF7; /* 悬停时字体颜色变为蓝色 */
+  color: #307AF7;
 }
 
 /* 当前页面的样式 */
 .navbar-btn.active {
-  color: #307AF7; /* 当前页面的字体颜色 */
-  border-bottom: 2px solid #307AF7; /* 下划线高亮效果 */
+  color: #307AF7;
+  border-bottom: 2px solid #307AF7;
 }
 
 /* ===== 网格布局系统 ===== */
@@ -238,8 +232,8 @@ h1 {
 
 .lang-switch-btn {
   cursor: pointer;
-  width: 48px; /* 增大尺寸 */
-  height: 48px; /* 增大尺寸 */
+  width: 36px;
+  height: 36px;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -255,10 +249,10 @@ h1 {
 }
 
 .lang-switch-btn .icon {
-  width: 36px; /* 再次增大图标尺寸 */
-  height: 36px; /* 再次增大图标尺寸 */
+  width: auto;
+  height: auto;
   fill: #fff;
-  margin-right: 0; /* 覆盖通用图标样式，实现居中 */
+  margin-right: 0;
 }
 
 .lang-dropdown {
@@ -303,7 +297,7 @@ h1 {
 
 /* 新闻列表标题和详情页标题 */
 #news-content-area h2,
-.news-detail-container h2 { /* 调整选择器，包括 news-list-container h2 */
+.news-detail-container h2 {
   font-size: 2.2rem;
   color: #7dc8ff;
   text-shadow: 0 2px 10px rgba(33, 150, 243, 0.4);
@@ -311,101 +305,93 @@ h1 {
   margin-bottom: 20px;
 }
 
-.news-detail-date-wrapper { /* 新增一个日期包装器样式 */
+.news-detail-date-wrapper {
   text-align: center;
   font-size: 1.1rem;
   color: rgba(255, 255, 255, 0.7);
-  padding-bottom: 15px; /* 增加底部内边距，为分隔线留出空间 */
-  border-bottom: 1px solid rgba(255, 255, 255, 0.2); /* 添加分隔线 */
-  display: block; /* 确保 border-bottom 能正确显示 */
+  padding-bottom: 15px;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.2);
+  display: block;
 }
 
 #news-content-area {
-  /* 关键的 Grid 布局和宽度控制 */
-  grid-column: 1 / -1; /* 跨越所有列，使其与 #download-card 行为一致 */
-  width: calc(100% - 70px); /* 宽度计算方式与 #download-card 相同 */
-  margin: 20px auto; /* 确保自身也居中 */
+  grid-column: 1 / -1;
+  width: calc(100% - 70px);
+  margin: 20px auto;
 }
 
 .news-container {
-  /* 与 .card 保持一致的基础样式 */
   background-color: rgba(0, 0, 0, 0.7);
   border-radius: 10px;
   box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
-
-  /* 确保新闻容器的最大宽度不超过 overlay 的最大宽度，并保持一致 */
-  max-width: 1200px; /* 显式设置 max-width，确保与 overlay 的 max-width 匹配 */
-  box-sizing: border-box; /* 确保 padding 包含在 width 内 */
+  max-width: 1200px;
+  box-sizing: border-box;
 }
 
 /* ===== 新闻列表项链接样式 ===== */
-/* 新增：包裹整个新闻列表项的链接 */
 .news-list-item-link {
-    text-decoration: none; /* 移除下划线 */
-    color: inherit; /* 继承父元素的颜色 */
-    display: block; /* 确保链接占据整个新闻项的宽度 */
-    margin-bottom: 20px; /* 链接之间保持间距 */
-    transition: transform 0.3s ease, box-shadow 0.3s ease; /* 添加过渡效果 */
-    border-radius: 10px; /* 确保圆角与内部新闻项一致 */
-    overflow: hidden; /* 防止内容溢出圆角 */
+    text-decoration: none;
+    color: inherit;
+    display: block;
+    margin-bottom: 20px;
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+    border-radius: 10px;
+    overflow: hidden;
 }
 
-/* 移除 news-list-item 自身的 margin-bottom，因为它现在由 news-list-item-link 控制 */
 .news-list-item {
-    display: flex; /* 使用 Flexbox 布局 */
-    align-items: center; /* 垂直居中对齐子项 */
-    background-color: rgba(0, 0, 0, 0.7); /* 半透明背景 */
-    border-radius: 10px; /* 圆角 */
-    padding: 15px; /* 内边距 */
-    /* margin-bottom: 20px; */ /* 移除这里，由 news-list-item-link 控制 */
-    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3); /* 阴影效果 */
-    position: relative; /* 用于日期定位 */
-    overflow: hidden; /* 确保内容不溢出圆角 */
-    border: 1px solid rgba(255, 255, 255, 0.1); /* 轻微边框 */
-    width: 100%; /* 确保填满父级链接的宽度 */
+    display: flex;
+    align-items: center;
+    background-color: rgba(0, 0, 0, 0.7);
+    border-radius: 10px;
+    padding: 15px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
+    position: relative;
+    overflow: hidden;
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    width: 100%;
     box-sizing: border-box;
 }
 
-/* 调整 news-list-item-link 的悬停效果 */
 .news-list-item-link:hover {
-  transform: translateY(-2px); /* 悬停时上浮 */
-  box-shadow: 0 8px 16px rgba(0, 0, 0, 0.5); /* 悬停时增强阴影 */
+  transform: translateY(-2px);
+  box-shadow: 0 8px 16px rgba(0, 0, 0, 0.5);
 }
 
 /* 内部元素的颜色变化 */
 .news-list-item-link:hover .news-content-text h3 {
-  color: #307AF7; /* 悬停时标题变为蓝色 */
+  color: #307AF7;
 }
 
 .news-list-item:last-child {
-    margin-bottom: 0; /* 最后一个新闻项底部无间距 */
+    margin-bottom: 0;
 }
 
 /* 封面图片样式 */
 .news-cover {
-    width: 150px; /* 封面宽度 */
-    height: 100px; /* 封面高度 */
-    object-fit: cover; /* 保持图片比例，裁剪多余部分 */
-    border-radius: 5px; /* 封面图片圆角 */
-    margin-right: 20px; /* 封面与文字内容的间距 */
-    flex-shrink: 0; /* 防止图片缩小 */
+    width: 150px;
+    height: 100px;
+    object-fit: cover;
+    border-radius: 5px;
+    margin-right: 20px;
+    flex-shrink: 0;
 }
 
 /* 新闻内容区域（标题、摘要） */
 .news-content-text {
-    flex-grow: 1; /* 允许文本内容区域占据剩余空间 */
+    flex-grow: 1;
     display: flex;
     flex-direction: column;
     justify-content: center;
-    padding-right: 120px; /* 为日期留出空间 */
+    padding-right: 120px;
 }
 
 /* 标题下方的分隔线 */
 .news-title-divider {
-    border-top: 1px solid rgba(255, 255, 255, 0.2); /* 细线 */
-    margin-top: 5px; /* 与标题的间距 */
-    margin-bottom: 10px; /* 与摘要的间距 */
-    width: 80%; /* 线的宽度 */
+    border-top: 1px solid rgba(255, 255, 255, 0.2);
+    margin-top: 5px;
+    margin-bottom: 10px;
+    width: 80%;
 }
 
 /* 摘要样式 */
@@ -431,12 +417,12 @@ h1 {
 }
 
 .news-detail-content img {
-    max-width: 100%; /* 最大宽度为其父容器的100% */
-    height: auto;    /* 高度自动调整，保持图片比例 */
-    display: block;  /* 移除图片底部的额外空间 */
-    margin: 15px auto; /* 上下外边距，左右居中 */
-    border-radius: 5px; /* 轻微圆角 */
-    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1); /* 轻微阴影 */
+    max-width: 100%;
+    height: auto;
+    display: block;
+    margin: 15px auto;
+    border-radius: 5px;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
 }
 
 /* 响应式调整 */
@@ -495,11 +481,11 @@ h1 {
 }
 
 .news-detail-content {
-  font-size: 1em; /* 1em 相当于浏览器默认字体大小，通常是16px */
-  line-height: 1.4; /* 增加行高以提高可读性 */
-  color: #ffffff; /* 默认文本颜色 */
-  padding: 20px auto; /* 内边距，防止内容贴边 */
-  box-sizing: border-box; /* 确保 padding 不增加元素总宽度 */
+  font-size: 1em;
+  line-height: 1.4;
+  color: #ffffff;
+  padding: 20px auto;
+  box-sizing: border-box;
   color: #e6e6e6;
 }
 
@@ -518,27 +504,27 @@ h1 {
 }
 
 .news-detail-content h1 {
-    font-size: 2.2em; /* 约 35.2px (如果基础是16px) */
+    font-size: 2.2em;
 }
 
 .news-detail-content h2 {
-    font-size: 1.8em; /* 约 28.8px */
+    font-size: 1.8em;
 }
 
 .news-detail-content h3 {
-    font-size: 1.5em; /* 约 24px */
+    font-size: 1.5em;
 }
 
 .news-detail-content h4 {
-    font-size: 1.3em; /* 约 20.8px */
+    font-size: 1.3em;
 }
 
 .news-detail-content h5 {
-    font-size: 1.1em; /* 约 17.6px */
+    font-size: 1.1em;
 }
 
 .news-detail-content h6 {
-    font-size: 1em; /* 约 16px */
+    font-size: 1em;
 }
 
 .news-detail-content p {
@@ -605,19 +591,19 @@ h1 {
   left: 0;
   width: 100%;
   height: 100%;
-  background-color: rgba(0, 0, 0, 1); /* 暗色背景 */
+  background-color: rgba(0, 0, 0, 1);
   display: flex;
   justify-content: center;
   align-items: center;
-  z-index: 9999; /* 确保它在最顶层 */
-  opacity: 1; /* 默认可见 */
-  visibility: visible; /* 默认可见 */
+  z-index: 9999;
+  opacity: 1;
+  visibility: visible;
 }
 
 .loading-overlay.hidden {
-  opacity: 0;      /* 使覆盖层淡出至完全透明 */
-  visibility: hidden; /* 在不透明度过渡后隐藏元素 */
-  pointer-events: none; /* 一旦隐藏，阻止与覆盖层进行交互 */
+  opacity: 0;
+  visibility: hidden;
+  pointer-events: none;
 }
 
 .lds-default,
@@ -708,5 +694,5 @@ h1 {
 }
 
 .hidden {
-    display: none !important; /* 使用 !important 确保覆盖内联或默认样式 */
+    display: none !important;
 }

@@ -11,6 +11,12 @@ function resolvePath(p, config) {
   }
 }
 
+// 新增辅助函数：获取当前 URL 的语言参数
+function getCurrentLangParam() {
+  const urlParams = new URLSearchParams(window.location.search);
+  return urlParams.get('lang');
+}
+
 // 核心 UI 更新函数
 // 这个函数负责根据当前语言和配置更新所有可见的UI元素
 async function updateUI(config, textsJson, iconsModule) {
@@ -56,16 +62,23 @@ async function updateUI(config, textsJson, iconsModule) {
   }
 
   // 导航栏按钮文本
+  // 导航栏按钮文本和链接
   const homeBtn = document.getElementById('home-btn');
   const newsBtn = document.getElementById('news-btn');
+  
+  // 获取当前的语言参数，用于构建链接
+  const langParam = getCurrentLangParam();
+  const langQuery = langParam ? `?lang=${langParam}` : '';
 
   if (homeBtn) {
     homeBtn.textContent = t['NavbarHome'];
     homeBtn.setAttribute('aria-label', t['NavbarHome']);
+    homeBtn.href = `/${langQuery}`;
   }
   if (newsBtn) {
     newsBtn.textContent = t['NavbarNews'];
-    newsBtn.setAttribute('aria-label', t['NavbarNews']);
+    homeBtn.setAttribute('aria-label', t['NavbarNews']);
+    newsBtn.href = `/news/${langQuery}`;
   }
 
   // *** 导航栏激活状态 (核心) ***
@@ -93,7 +106,7 @@ async function updateUI(config, textsJson, iconsModule) {
   const versionEl = document.getElementById('version');
   if (versionEl) {
     if (isHomePage) {
-      versionEl.textContent = `${t['Version']}: V${config.version}`;
+      versionEl.textContent = `${t['Version']}: v${config.version}`;
     } else {
       versionEl.remove();
     }
@@ -290,7 +303,7 @@ export async function init(config, textsJsonPath, iconsJsPath, styleCssPath) {
     langSelect.setAttribute('title', textsJson[initialLang.startsWith('zh') ? 'zh' : 'en']['SelectLanguageTitle'] || "Select Language");
 
     if (!langSelect.dataset.mainListenerAdded) {
-      langSelect.addEventListener('change', async (e) => { // **注意这里是 async 函数**
+      langSelect.addEventListener('change', async (e) => { // 注意这里是 async 函数
         const newLang = e.target.value;
         // 更新 URL 参数
         const currentUrl = new URL(window.location.href);
@@ -300,7 +313,7 @@ export async function init(config, textsJsonPath, iconsJsPath, styleCssPath) {
         // 1. 调用 updateUI 函数更新主页/通用页面文本和元素
         await updateUI(config, textsJson, iconsModule); // 使用 await
 
-        // 2. **关键改动：如果当前页面是新闻页，重新初始化新闻模块**
+        // 2. 如果当前页面是新闻页，重新初始化新闻模块
         const currentPathname = window.location.pathname;
         if (currentPathname.startsWith('/news/') || currentPathname.endsWith('/news.html') || currentPathname === '/news/') {
           try {

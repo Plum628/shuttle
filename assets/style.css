@@ -265,7 +265,6 @@ h1 {
   font-size: 1.1rem;
   color: rgba(255, 255, 255, 0.7);
   padding-bottom: 15px; /* 增加底部内边距，为分隔线留出空间 */
-  margin-bottom: 10px; /* 增加与下方内容的间距 */
   border-bottom: 1px solid rgba(255, 255, 255, 0.2); /* 添加分隔线 */
   display: block; /* 确保 border-bottom 能正确显示 */
 }
@@ -445,8 +444,11 @@ h1 {
 }
 
 .news-detail-content {
-  line-height: 1.8;
-  font-size: 1.15rem;
+  font-size: 1em; /* 1em 相当于浏览器默认字体大小，通常是16px */
+  line-height: 1.4; /* 增加行高以提高可读性 */
+  color: #ffffff; /* 默认文本颜色 */
+  padding: 20px auto; /* 内边距，防止内容贴边 */
+  box-sizing: border-box; /* 确保 padding 不增加元素总宽度 */
   color: #e6e6e6;
 }
 
@@ -457,14 +459,40 @@ h1 {
 .news-detail-content h5,
 .news-detail-content h6 {
   color: #7dc8ff;
-  margin-top: 2em;
+  margin-top: 1.5em;
   margin-bottom: 0.8em;
+  line-height: 1.2;
   padding-bottom: 0.3em;
   border-bottom: 1px solid rgba(255, 255, 255, 0.1);
 }
 
+.news-detail-content h1 {
+    font-size: 2.2em; /* 约 35.2px (如果基础是16px) */
+}
+
+.news-detail-content h2 {
+    font-size: 1.8em; /* 约 28.8px */
+}
+
+.news-detail-content h3 {
+    font-size: 1.5em; /* 约 24px */
+}
+
+.news-detail-content h4 {
+    font-size: 1.3em; /* 约 20.8px */
+}
+
+.news-detail-content h5 {
+    font-size: 1.1em; /* 约 17.6px */
+}
+
+.news-detail-content h6 {
+    font-size: 1em; /* 约 16px */
+}
+
 .news-detail-content p {
   margin-bottom: 1em;
+  font-size: 1em;
 }
 
 .news-detail-content ul,
@@ -484,6 +512,24 @@ h1 {
 
 .news-detail-content a:hover {
   text-decoration: underline;
+}
+
+.news-detail-content pre {
+    background-color: #f4f4f4;
+    padding: 10px;
+    border-radius: 5px;
+    overflow-x: auto;
+}
+
+.news-detail-content code {
+    font-family: monospace;
+}
+
+.news-detail-content blockquote {
+    border-left: 4px solid #ccc;
+    padding-left: 15px;
+    margin-left: 0;
+    color: #b0b0b0;
 }
 
 /* 返回按钮 */

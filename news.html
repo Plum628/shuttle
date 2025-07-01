@@ -11,7 +11,6 @@
     <link rel="stylesheet" href="/assets/style.css" />
     <script src="https://cdn.jsdelivr.net/npm/marked@latest/marked.min.js"></script>
   </head>
-
   <body>
     <div class="navbar">
       <div class="navbar-left">
@@ -41,7 +40,6 @@
     </div>
     <script type="module">
       let appConfig
-      // 不再需要 appTextsJson 和 appIconsModule
 
       async function loadInitialData() {
         const configRes = await fetch(
@@ -49,27 +47,21 @@
         )
         appConfig = await configRes.json()
 
-        // 同样，调用 main.init 来初始化导航栏和语言选择器
         const mainModule = await import(
           new URL(appConfig.mainJs, window.location.origin)
         )
         await mainModule.init(
-          // 确保这里是 await
           appConfig,
           appConfig.textsJson,
           appConfig.iconsJs,
           appConfig.styleCss
         )
 
-        // 然后再调用 news.js 的 initNews 来渲染新闻内容
+        // 从 config.json 读取 news.js 路径
         const newsModule = await import(
-          new URL('/js/news.js', window.location.origin)
+          new URL(appConfig.newsJs, window.location.origin)
         )
-        await newsModule.initNews(
-          // 确保这里是 await
-          appConfig,
-          appConfig.newsJson
-        )
+        await newsModule.initNews(appConfig, appConfig.newsJson)
       }
 
       document.addEventListener('DOMContentLoaded', loadInitialData)

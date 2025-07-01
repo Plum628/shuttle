@@ -64,7 +64,6 @@
     </div>
     <script type="module">
       let appConfig
-      // 不再需要 appTextsJson 和 appIconsModule
 
       async function loadInitialData() {
         const configRes = await fetch(
@@ -72,17 +71,19 @@
         )
         appConfig = await configRes.json()
 
-        // 只需调用 main.init，它会处理所有的语言、文本、图标加载和 UI 渲染
         const mainModule = await import(
           new URL(appConfig.mainJs, window.location.origin)
         )
         await mainModule.init(
-          // 确保这里是 await
           appConfig,
-          appConfig.textsJson, // 传递 textsJson 的路径
-          appConfig.iconsJs, // 传递 iconsJs 的路径
-          appConfig.styleCss // 传递 styleCss 的路径
+          appConfig.textsJson,
+          appConfig.iconsJs,
+          appConfig.styleCss
         )
+
+        // 在这里不需要加载 news.js，因为它不是主页的主要逻辑
+        // 但是，为了确保 main.js 能够在语言切换时正确调用 news.js，
+        // main.js 内部会动态导入 news.js，所以这里不需要额外的改动。
       }
 
       document.addEventListener('DOMContentLoaded', loadInitialData)

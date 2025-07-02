@@ -9,6 +9,7 @@
     />
     <title>PvZ2: SHUTTLE</title>
     <link rel="stylesheet" href="assets/style.css" />
+    <link rel="stylesheet" href="assets/language-picker.css" />
   </head>
 
   <body>
@@ -39,14 +40,19 @@
         ></a>
       </div>
       <div class="navbar-right">
-        <div class="lang-switch" id="lang-switch">
-          <button class="lang-switch-btn" id="lang-switch-btn" aria-label="Select Language">
-            <!-- SVG will be injected here by JS -->
-          </button>
-          <div class="lang-dropdown" id="lang-dropdown">
-            <a href="#" data-lang="en-US">English</a>
-            <a href="#" data-lang="zh-CN">简体中文</a>
-          </div>
+        <div
+          class="language-picker js-language-picker"
+          data-trigger-class="li4-btn li4-btn--subtle js-tab-focus"
+        >
+          <form action="" class="language-picker__form">
+            <label for="language-picker-select" class="li4-sr-only"
+              >Select your language</label
+            >
+            <select name="language-picker-select" id="language-picker-select">
+              <option lang="en-US" value="english">English</option>
+              <option lang="zh-CN" value="chinese">简体中文</option>
+            </select>
+          </form>
         </div>
       </div>
     </div>
@@ -83,13 +89,15 @@
         <div class="btn-container" id="groups"></div>
       </div>
     </div>
+
+    <script src="/js/language-picker.js"></script>
     <script type="module">
-      import { showLoader, hideLoader } from '/js/main.js'
+      import { showLoader, hideLoader, updateUI } from '/js/main.js'
 
       let appConfig
 
       async function loadInitialData() {
-        showLoader() // 显示加载器
+        showLoader()
 
         try {
           const configRes = await fetch(
@@ -97,18 +105,41 @@
           )
           appConfig = await configRes.json()
 
+          // --- NEW LOGIC HERE ---
+          // Determine currentLang early and set it globally for language-picker.js
+          const urlParams = new URLSearchParams(window.location.search)
+          let initialLang = urlParams.get('lang')
+          if (!initialLang) {
+            initialLang = navigator.language.startsWith('zh')
+              ? 'zh-CN'
+              : 'en-US'
+          }
+          window.languagePickerUpdater.currentLang = initialLang
+          // --- END NEW LOGIC ---
+
+          // Expose functions and config to language-picker.js via the global object
+          window.languagePickerUpdater.updateUI = updateUI
+          window.languagePickerUpdater.showLoader = showLoader
+          window.languagePickerUpdater.hideLoader = hideLoader
+          window.languagePickerUpdater.config = appConfig
+
           const mainModule = await import(
             new URL(appConfig.mainJs, window.location.origin)
           )
           await mainModule.init(
-            // 确保这里等待 main.js 的 init 完成，它现在包含了图片和字体等待逻辑
             appConfig,
             appConfig.textsJson,
             appConfig.iconsJs,
-            appConfig.styleCss
+            appConfig.styleCss,
+            // The callback no longer needs to pass currentLang, as it's set globally
+            (config, textsJson, iconsModule) => {
+              window.languagePickerUpdater.config = config
+              window.languagePickerUpdater.textsJson = textsJson
+              window.languagePickerUpdater.iconsModule = iconsModule
+              // window.languagePickerUpdater.currentLang is already set above
+            }
           )
 
-          // 仅在 news.html 或新闻相关路径时加载 newsModule
           const currentPathname = window.location.pathname
           if (
             currentPathname.startsWith('/news/') ||
@@ -118,16 +149,14 @@
             const newsModule = await import(
               new URL(appConfig.newsJs, window.location.origin)
             )
-            await newsModule.initNews(appConfig, appConfig.newsJson) // 确保这里等待 news.js 的 initNews 完成
+            await newsModule.initNews(appConfig, appConfig.newsJson)
           }
         } catch (error) {
-          console.error('初始数据加载期间出错:', error)
+          console.error('Initial data loading error:', error)
         } finally {
-          hideLoader() // 所有 await 操作完成后，才隐藏加载器
+          hideLoader()
         }
       }
-
-      // 确保只监听一次 DOMContentLoaded 事件
       document.addEventListener('DOMContentLoaded', loadInitialData)
     </script>
   </body>

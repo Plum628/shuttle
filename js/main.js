@@ -75,7 +75,7 @@ function getCurrentLangParam() {
 }
 
 // 根据当前语言和配置更新所有可见的UI元素
-async function updateUI(config, textsJson, iconsModule) {
+export async function updateUI(config, textsJson, iconsModule) { // 导出 updateUI
   const urlParams = new URLSearchParams(window.location.search);
   let currentLang = urlParams.get('lang');
   if (!currentLang) {
@@ -339,13 +339,13 @@ async function updateUI(config, textsJson, iconsModule) {
 }
 
 // 页面初始化入口函数
-export async function init(config, textsJsonPath, iconsJsPath, styleCssPath) {
-  // 加载所有必要的初始数据
+export async function init(config, textsJsonPath, iconsJsPath, styleCssPath, onLanguageChangeCallback) {
+  // Load all necessary initial data
   const textsResponse = await fetch(new URL(textsJsonPath, window.location.origin));
   const textsJson = await textsResponse.json();
   const iconsModule = await import(new URL(iconsJsPath, window.location.origin));
 
-  // 动态加载 CSS
+  // Dynamic CSS loading
   if (styleCssPath) {
     const resolvedStylePath = resolvePath(styleCssPath, config);
     const existingLink = document.querySelector(`link[href="${resolvedStylePath}"]`);
@@ -357,7 +357,7 @@ export async function init(config, textsJsonPath, iconsJsPath, styleCssPath) {
     }
   }
 
-  // 设置 favicon
+  // Set favicon
   if (config.favicon) {
     const link = document.createElement('link');
     link.rel = 'icon';
@@ -366,72 +366,12 @@ export async function init(config, textsJsonPath, iconsJsPath, styleCssPath) {
     document.head.appendChild(link);
   }
 
-  // 处理语言切换器
-  const langSwitch = document.getElementById('lang-switch');
-  if (langSwitch) {
-    const langSwitchBtn = document.getElementById('lang-switch-btn');
-    const langDropdown = document.getElementById('lang-dropdown');
-
-    // 注入SVG图标
-    if (langSwitchBtn) {
-      langSwitchBtn.innerHTML = iconsModule.ICONS.language;
-    }
-
-    const initialLang = (new URLSearchParams(window.location.search).get('lang') || navigator.language).startsWith('zh') ? 'zh' : 'en';
-    if (langSwitchBtn) {
-      langSwitchBtn.setAttribute('title', textsJson[initialLang]['SelectLanguageTitle'] || 'Select Language');
-    }
-
-    // 点击按钮显示/隐藏下拉菜单
-    if (langSwitchBtn && !langSwitchBtn.dataset.listenerAdded) {
-      langSwitchBtn.addEventListener('click', (event) => {
-        event.stopPropagation();
-        langDropdown.classList.toggle('show');
-      });
-      langSwitchBtn.dataset.listenerAdded = 'true';
-    }
-
-    // 点击下拉菜单中的语言选项
-    if (langDropdown && !langDropdown.dataset.listenerAdded) {
-      langDropdown.addEventListener('click', async (event) => {
-        if (event.target.tagName === 'A') {
-          event.preventDefault();
-          showLoader();
-          const newLang = event.target.dataset.lang;
-          langDropdown.classList.remove('show');
-
-          const currentUrl = new URL(window.location.href);
-          currentUrl.searchParams.set('lang', newLang);
-          history.replaceState(null, '', currentUrl.toString());
-
-          try {
-            await updateUI(config, textsJson, iconsModule);
-
-            const currentPathname = window.location.pathname;
-            if (currentPathname.startsWith('/news/') || currentPathname.endsWith('/news.html') || currentPathname === '/news/') {
-              const newsModule = await import(new URL(config.newsJs, window.location.origin));
-              await newsModule.initNews(config, config.newsJson);
-            }
-          } catch (error) {
-            console.error('语言切换期间出错：', error);
-          } finally {
-            hideLoader();
-          }
-        }
-      });
-      langDropdown.dataset.listenerAdded = 'true';
-    }
-
-    // 点击窗口其他地方隐藏下拉菜单
-    window.addEventListener('click', (event) => {
-      if (langDropdown && langDropdown.classList.contains('show')) {
-        if (!langSwitch.contains(event.target)) {
-          langDropdown.classList.remove('show');
-        }
-      }
-    });
-  }
-
-  // 调用 updateUI 进行首次渲染 (这个调用会负责等待字体和图片)
+  // Call updateUI for initial rendering (this handles font and image loading)
   await updateUI(config, textsJson, iconsModule);
+
+  // If a callback is provided, call it after all data is loaded, passing necessary parameters
+  if (onLanguageChangeCallback) {
+    // Remove currentLang from here, as it's now set globally in the HTML script.
+    onLanguageChangeCallback(config, textsJson, iconsModule);
+  }
 }

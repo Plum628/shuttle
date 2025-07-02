@@ -1,13 +1,10 @@
 // 日期格式化辅助函数
 function formatNewsDate(dateString, langCode) {
-  // 使用 new Date() 构造函数，并传入年、月、日
-  // 注意：月份在 JavaScript 的 Date 对象中是 0-11，所以需要减 1
-  const parts = dateString.split('-'); // "2025-06-01" -> ["2025", "06", "01"]
+  const parts = dateString.split('-');
   const year = parseInt(parts[0], 10);
-  const month = parseInt(parts[1], 10) - 1; // 月份是0-11，所以 6 月是 5
+  const month = parseInt(parts[1], 10) - 1;
   const day = parseInt(parts[2], 10);
 
-  // 这样创建的日期对象是本地时区下指定日期的午夜
   const date = new Date(year, month, day);
 
   let options;
@@ -21,9 +18,7 @@ function formatNewsDate(dateString, langCode) {
   }
 }
 
-// 辅助函数：等待指定容器内的所有图片加载完成
-// 注意：这个函数与 main.js 中的类似，但为了模块独立性，可以单独存在。
-// 如果你想保持 DRY (Don't Repeat Yourself)，可以考虑将这个函数放到一个公共的工具文件中，然后导入。
+// 等待指定容器内的所有图片加载完成
 async function waitForNewsImagesToLoad(container) {
   if (!container) {
     console.warn('Image container not found for news image loading check.');
@@ -34,30 +29,25 @@ async function waitForNewsImagesToLoad(container) {
   const images = Array.from(container.querySelectorAll('img'));
 
   const imagePromises = images.map(img => {
-    // 对于 img 标签，如果已经加载，Promise 立即解决
     if (img.complete && img.naturalHeight !== 0) {
       return Promise.resolve();
     }
     return new Promise(resolve => {
       img.addEventListener('load', () => {
-        // console.log('News image loaded:', img.src); // 调试日志
         resolve();
       }, { once: true });
       img.addEventListener('error', (e) => {
         console.warn('News image failed to load:', img.src, e);
-        resolve(); // 即使加载失败也解决，避免卡住
+        resolve();
       }, { once: true });
     });
   });
 
   await Promise.all(imagePromises);
-  // console.log('所有新闻图片已加载。'); // 调试日志
 }
 
 
 export async function initNews(config, newsJsonPath) {
-  // console.log('initNews called!');
-
   // 1. 加载新闻数据 (news.json)
   const newsResponse = await fetch(new URL(newsJsonPath, window.location.origin));
   if (!newsResponse.ok) {
@@ -67,8 +57,7 @@ export async function initNews(config, newsJsonPath) {
       newsContentArea.innerHTML = '<p>新闻数据加载失败，请稍后再试。</p>';
       newsContentArea.className = 'card news-list-container';
     }
-    // 返回，但不隐藏加载器，让主页的 finally 块来处理，或者直接在这里抛出错误让外层捕获
-    throw new Error('Failed to load news.json'); // 抛出错误，让 loadInitialData 的 catch 处理
+    throw new Error('Failed to load news.json');
   }
   const newsData = await newsResponse.json();
   // console.log('News Data:', newsData);
@@ -89,16 +78,15 @@ export async function initNews(config, newsJsonPath) {
     if (newsContentArea) {
       newsContentArea.innerHTML = '<p>语言文本加载失败，请稍后再试。</p>';
     }
-    throw new Error('Failed to load texts.json'); // 抛出错误
+    throw new Error('Failed to load texts.json');
   }
   const textsJson = await textsResponse.json();
   const t = textsJson[shortLang];
-  // console.log('Texts Data (t):', t);
 
   const newsContentArea = document.getElementById('news-content-area');
   if (!newsContentArea) {
     console.error('Error: news-content-area element not found!');
-    throw new Error('News content area not found.'); // 抛出错误
+    throw new Error('News content area not found.');
   }
 
   // 4. 解析新闻 ID (从 URL 路径)
@@ -113,21 +101,15 @@ export async function initNews(config, newsJsonPath) {
     }
   }
 
-  // console.log('Resolved News ID:', newsId);
-
   // 5. 渲染新闻列表或单篇新闻
   if (newsId) {
     await renderSingleNews(newsId, newsData, shortLang, newsContentArea, t, currentLang, config);
   } else {
-    // *** 关键修改：等待 renderNewsList 完成渲染，并等待其中的图片加载 ***
     await renderNewsList(newsData, currentLang, shortLang, newsContentArea, t);
   }
 
-  // *** 关键修改：在 renderNewsList/renderSingleNews 完成并图片加载后，才让 initNews 完成 ***
   // 在这里等待新闻列表/单篇新闻中的图片加载
   await waitForNewsImagesToLoad(newsContentArea);
-
-  // console.log('initNews completed, all news content and images should be loaded.');
 }
 
 
@@ -149,16 +131,7 @@ async function renderNewsList(newsData, currentLang, shortLang, container, t) {
       newsCoverPath = newsItem.cover_url[shortLang] || newsItem.cover_url['en'] || '';
     }
 
-    // 确保图片路径是绝对路径，并考虑 CDN
-    // 这里我们假设 newsCoverPath 是相对于网站根目录的路径，例如 'assets/news/some-image.png'
-    // 并且 config 中有 resolvePath 函数或类似的逻辑来处理 CDN
-    // 因为 news.js 无法直接访问 main.js 的 resolvePath，这里需要一个独立的解析逻辑
-    // 或者将 resolvePath 提取到一个共享工具文件并导入
-    // 为了简化，我们假设 newsCoverPath 已经是可用 URL 片段，并直接构建 URL。
-    // 如果 config.useCdn 适用于新闻图片，你可能需要将 resolvePath 也移植到 news.js 或通过参数传递。
-    // For now, let's assume it's relative to root or fully qualified.
     const finalCoverUrl = newsCoverPath ? new URL(newsCoverPath, window.location.origin).toString() : '';
-
 
     const newsLink = document.createElement('a');
     newsLink.href = `/news/${newsItem.id}/?lang=${currentLang}`;
@@ -180,8 +153,6 @@ async function renderNewsList(newsData, currentLang, shortLang, container, t) {
     newsLink.appendChild(newsCard);
     container.appendChild(newsLink);
   });
-  // console.log('News list rendered.');
-  // 无需返回 Promise，因为图片加载将在 initNews 内部的 waitForNewsImagesToLoad 处理
 }
 
 async function renderSingleNews(newsId, newsData, shortLang, container, t, currentLang, config) {
@@ -194,7 +165,6 @@ async function renderSingleNews(newsId, newsData, shortLang, container, t, curre
   }
 
   let markdownContent = '';
-  // 这里的 newsResolvePath 确保可以正确解析 CDN 和本地路径，与 main.js 中的逻辑保持一致
   const newsResolvePath = (p) => {
     if (!p) return '';
     if (config.useCdn && config.cdnBase) {
@@ -220,7 +190,7 @@ async function renderSingleNews(newsId, newsData, shortLang, container, t, curre
     console.error('Error fetching markdown:', error);
     container.innerHTML = `<p>${t['FailedToLoadNews'] || 'Failed to load news content.'}</p>`;
     container.className = 'card news-detail-container';
-    return; // 不要抛出错误，因为这里已经处理了显示错误信息
+    return;
   }
 
   const renderedHtml = window.marked ? window.marked.parse(markdownContent) : markdownContent;
@@ -245,10 +215,4 @@ async function renderSingleNews(newsId, newsData, shortLang, container, t, curre
   container.className = 'card news-detail-container';
   document.title = (newsItem.title[shortLang] || newsItem.title['en'] || 'News') + ' - PvZ2: SHUTTLE';
   window.scrollTo(0, 0);
-
-  // 单篇新闻也可能包含图片，等待它们加载
-  // 这里通常指 markdown 内部的图片，它们的加载是异步的
-  // 如果 markdown 内部图片使用了 img 标签，waitForNewsImagesToLoad 会处理
-  // 如果是背景图或其他方式，可能需要更复杂的处理
-  // 我们依赖 waitForNewsImagesToLoad 遍历 container 来处理
 }

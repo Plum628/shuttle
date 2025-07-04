@@ -1,0 +1,6 @@
+project_brief.md
+shuttle.code-workspace
+package.json
+package-lock.json
+server.js
+node_modules/
